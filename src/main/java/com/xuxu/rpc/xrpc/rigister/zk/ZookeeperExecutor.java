@@ -56,7 +56,7 @@ public class ZookeeperExecutor implements Runnable {
 		try {
 			Stat stat = zk.exists(XRPC_ROOT_NODE, true);
 			if (stat == null) {
-				zk.create(XRPC_ROOT_NODE, XRPC_ROOT_NODE.getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE,
+				zk.create(XRPC_ROOT_NODE, "".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE,
 						CreateMode.PERSISTENT);
 			}
 		} catch (Exception e) {
@@ -177,7 +177,7 @@ class WatcherImpl implements Watcher {
 				try {
 					byte[] data = zk.getData(watchedEvent.getPath(), true, null);
 					String hostAndport = new String(data);
-					if (ZookeeperExecutor.XRPC_ROOT_NODE.equals(hostAndport)||"".equals(hostAndport)) {
+					if ("".equals(hostAndport)) {
 						return;
 					}
 					String[] nodes = watchedEvent.getPath().split("/");
