@@ -8,7 +8,7 @@ import com.xuxu.rpc.xrpc.netty.NettyServer;
  * @author xuxu
  *
  */
-public abstract class XrpcServer {
+public interface XrpcServer {
 
 	public static XrpcServer open(int port) {
 		NettyXrpcServer nettyXrpcServer = new NettyXrpcServer();
@@ -16,12 +16,8 @@ public abstract class XrpcServer {
 		return nettyXrpcServer;
 	}
 
-	public abstract void start(int port);
-	
-	public static void main(String[] args) {
-		open(8776);
-	}
-
+	 void start(int port);
+		
 }
 
 /**
@@ -30,7 +26,7 @@ public abstract class XrpcServer {
  * @author xuxu
  *
  */
-class NettyXrpcServer extends XrpcServer {
+class NettyXrpcServer implements XrpcServer {
 
 	private volatile boolean isOpen = false;
 

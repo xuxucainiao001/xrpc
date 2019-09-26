@@ -37,11 +37,6 @@ public class NettyClient {
 	private static AtomicInteger requestIdGenerater=new AtomicInteger(0) ;
 	
 	private NettyClient() {}
-
-	
-	public static void main(String[] args) {
-		createNew(new HostInfo("172.16.14.126:8776"));
-	}
 	
 	private static void createNew(HostInfo hp){
 		Channel channel=null;

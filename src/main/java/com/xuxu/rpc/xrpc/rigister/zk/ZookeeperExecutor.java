@@ -23,7 +23,7 @@ public class ZookeeperExecutor implements Runnable {
 
 	private ZooKeeper zk;
 
-	private volatile boolean stop = false;
+	private volatile boolean stop = true;
 
 	private RigisterInfo rigisterInfo;
 
@@ -41,6 +41,7 @@ public class ZookeeperExecutor implements Runnable {
 				// 启动时，异步创建主节点
 				createMainNode();
 				logger.info("启动zookeeper成功！");
+				stop=false;
 				// 启动完成打开锁
 				this.notifyAll();
 				await();
@@ -64,7 +65,7 @@ public class ZookeeperExecutor implements Runnable {
 		}
 	}
 
-	public RigisterInfo getRigisterInfo() {
+	public synchronized RigisterInfo getRigisterInfo() {
 		return this.rigisterInfo;
 	}
 
@@ -75,10 +76,9 @@ public class ZookeeperExecutor implements Runnable {
 	 * @param ip
 	 * @param info
 	 */
-	public void rigister(String methodInfo, String hostPort) {
-		synchronized (this) {
+	public synchronized void rigister(String methodInfo, String hostPort) {
 			try {
-				while (zk == null) {
+				while (zk == null||stop) {
 					this.wait();
 				}
 				// 检查接口信息是否已经注入
@@ -98,7 +98,6 @@ public class ZookeeperExecutor implements Runnable {
 			} catch (Exception e) {
 				logger.error("设置节点失败：{}", e);
 			}
-		}
 
 	}
 
@@ -130,6 +129,10 @@ public class ZookeeperExecutor implements Runnable {
 			stop = true;
 			this.notifyAll();
 		}
+	}
+	
+	public boolean started() {
+		return !this.stop;
 	}
 
 	@Override
