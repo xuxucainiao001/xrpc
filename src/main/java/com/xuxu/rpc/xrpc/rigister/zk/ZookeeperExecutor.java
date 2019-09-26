@@ -65,7 +65,7 @@ public class ZookeeperExecutor implements Runnable {
 		}
 	}
 
-	public synchronized RigisterInfo getRigisterInfo() {
+	public RigisterInfo getRigisterInfo() {
 		return this.rigisterInfo;
 	}
 

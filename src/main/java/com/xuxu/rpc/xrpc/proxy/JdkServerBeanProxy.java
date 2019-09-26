@@ -51,10 +51,11 @@ public class JdkServerBeanProxy implements ServerBeanProxy {
 				continue;
 			}
 			if(method!=null) {
-				MethodInfo methodInfo = new MethodInfo(method, intfs[0], intfImpl, xprcServer);
-				XrpcResponseContext.rigisterMethodCache(methodInfo.getMethodKey(), methodInfo);
+				MethodInfo methodInfo = new MethodInfo(method, intfs[0], intfImpl, xprcServer);				
 				//注册到注册中心上
 				XrpcResponseContext.getRigister().rigisterInfo(methodInfo.getMethodKey(), XrpcUtils.localHostInfo());
+				//注册到缓存里
+				XrpcResponseContext.rigisterMethodCache(methodInfo.getMethodKey(), methodInfo);
 			}			
 		}
 		//获取代理对象
