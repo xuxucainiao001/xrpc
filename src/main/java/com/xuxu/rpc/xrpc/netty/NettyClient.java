@@ -10,16 +10,21 @@ import org.slf4j.LoggerFactory;
 import com.xuxu.rpc.xrpc.exceptions.XrpcRuntimeException;
 import com.xuxu.rpc.xrpc.exceptions.eumn.ExceptionEnum;
 import com.xuxu.rpc.xrpc.info.HostInfo;
+import com.xuxu.rpc.xrpc.request.RequestEntity;
 import com.xuxu.rpc.xrpc.request.XrpcRequest;
-import com.xuxu.rpc.xrpc.request.XrpcRequestWrapper;
-import com.xuxu.rpc.xrpc.response.XrpcResponse;
+import com.xuxu.rpc.xrpc.response.ResponseEntity;
+import com.xuxu.rpc.xrpc.utils.XrpcSerializerUtils;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
+import io.netty.channel.ChannelOutboundHandlerAdapter;
+import io.netty.channel.ChannelPromise;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -28,7 +33,7 @@ public class NettyClient {
 	
 	private static Logger logger=LoggerFactory.getLogger(NettyClient.class);
 	
-	private static ConcurrentMap<Integer, XrpcResponse> responseMap =new ConcurrentHashMap<>();
+	private static ConcurrentMap<Integer, ResponseEntity> responseMap =new ConcurrentHashMap<>();
 	
 	private static ConcurrentMap<HostInfo,Channel> invokeMap=new ConcurrentHashMap<>();
 	
@@ -52,8 +57,11 @@ public class NettyClient {
 					.handler(new ChannelInitializer<Channel>() {
 
 						@Override
-						protected void initChannel(Channel ch) throws Exception {
-							ch.pipeline().addLast().addLast(nettyClientInvokeHandler);
+						protected void initChannel(Channel ch) throws Exception {						
+							ch.pipeline()
+							  .addLast(new NettyClientEncoderHandler())
+							  .addLast(new NettyClientDecoderHandler())
+							  .addLast(nettyClientInvokeHandler);
 						}
 						
 					}).connect(hp.getHost().trim(), hp.getPort()).sync().channel();
@@ -75,38 +83,61 @@ public class NettyClient {
 			createNew(hostInfo);
 		}
 		int requestId=requestIdGenerater.incrementAndGet();		
-		invokeMap.get(hostInfo).writeAndFlush(new XrpcRequestWrapper(xrpcRequest) {
-			@Override
-			public Integer getRequestId() {
-				return requestId;
-			}
-			
-		});
+		RequestEntity requestEntity=xrpcRequest.newRequestEntity();
+		requestEntity.setRequestId(requestId);
+		invokeMap.get(hostInfo).writeAndFlush(requestEntity);
 		return requestId;
 	}
 	
-	public static XrpcResponse getResult(int requestId){
-		XrpcResponse response=null;
+	public static ResponseEntity getResult(int requestId){
+		ResponseEntity responseEntity=null;
 		try {
-			response = nettyClientInvokeHandler.getXrpcResponse(requestId);
+			responseEntity = nettyClientInvokeHandler.getXrpcResponse(requestId);
 		} catch (Exception e) {
 			logger.error("获取调用结果异常：{}",e);
 		}
-		return response;
+		return responseEntity;
 	}
 
 }
 
+class NettyClientEncoderHandler extends  ChannelOutboundHandlerAdapter{
+	
+	private static Logger logger = LoggerFactory.getLogger(NettyClientEncoderHandler.class);
+	
+	@Override
+    public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
+		RequestEntity requestEntity=(RequestEntity)msg;
+		logger.info("NettyClient发送的对象：{}",requestEntity);	
+		byte[] bytes=XrpcSerializerUtils.serialize(requestEntity);		
+        ctx.writeAndFlush(Unpooled.copiedBuffer(bytes));
+    }
+	
+}
+
+class NettyClientDecoderHandler extends ChannelInboundHandlerAdapter {
+	
+	private static Logger logger = LoggerFactory.getLogger(NettyClientDecoderHandler.class);
+	 
+	@Override
+	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+		    ByteBuf byteBuf =(ByteBuf)msg;
+		 	ResponseEntity responseEntity=XrpcSerializerUtils.deserialize(byteBuf.array());
+			logger.info("NettyClient收到消息：{}" ,responseEntity);
+			ctx.fireChannelRead(responseEntity);
+	}
+	
+}
 
 
 class NettyClientInvokeHandler  extends ChannelInboundHandlerAdapter {
 	
 	private static Logger logger = LoggerFactory.getLogger(NettyClientInvokeHandler.class);
 	
-	private ConcurrentMap<Integer, XrpcResponse> responseMap;
+	private ConcurrentMap<Integer, ResponseEntity> responseMap;
 
 	
-	public NettyClientInvokeHandler(ConcurrentMap<Integer, XrpcResponse> responseMap) {
+	public NettyClientInvokeHandler(ConcurrentMap<Integer, ResponseEntity> responseMap) {
 		this.responseMap=responseMap;
 	}
 	
@@ -117,13 +148,12 @@ class NettyClientInvokeHandler  extends ChannelInboundHandlerAdapter {
 
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-			XrpcResponse respone=(XrpcResponse)msg;
-			logger.info("NettyClient收到消息：{}" , respone);
-			responseMap.put(respone.getRequestId(), respone);
+			ResponseEntity responseEntity=(ResponseEntity)msg;
+			logger.info("NettyClient收到消息：{}" , responseEntity);
+			responseMap.put(responseEntity.getRequestId(), responseEntity);
 			synchronized (this) {
 				notifyAll();
-			}
-			
+			}			
 	}
 
 	@Override
@@ -133,16 +163,16 @@ class NettyClientInvokeHandler  extends ChannelInboundHandlerAdapter {
 		ctx.channel().close();
 	}
 	
-	public synchronized XrpcResponse getXrpcResponse(Integer requestId) throws InterruptedException {
+	public synchronized ResponseEntity getXrpcResponse(Integer requestId) throws InterruptedException {
 		int i=0;
 		while(responseMap.get(requestId)==null) {
 			i++;
 			synchronized(this) {
-				//10秒没有获取结果，抛出异常
+				//5秒没有获取结果，抛出异常
 				this.wait(5000);
 			}
 			if(i>2) {
-				logger.error("创建NettyClient调用超时！requestId:{}",requestId);
+				logger.error("NettyClient调用超时！requestId:{}",requestId);
 				throw new XrpcRuntimeException(ExceptionEnum.E0021);
 			}
 		}

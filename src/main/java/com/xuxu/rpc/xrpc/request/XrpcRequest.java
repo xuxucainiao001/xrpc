@@ -9,13 +9,15 @@ public interface XrpcRequest {
 	
 	String getRequestKey();
 	
+    XrpcClient getMateDate();
+	
 	HostInfo getHostInfo();
 	
 	void setHostInfo(HostInfo hostInfo);
 	
-	XrpcClient getMateDate();
+	RequestEntity newRequestEntity();
 	
-	Integer getRequestId();
+	
 	
 	
 		

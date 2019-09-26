@@ -1,7 +1,5 @@
 package com.xuxu.rpc.xrpc.request;
 
-import java.io.Serializable;
-
 import com.xuxu.rpc.xrpc.annotations.XrpcClient;
 import com.xuxu.rpc.xrpc.info.HostInfo;
 import com.xuxu.rpc.xrpc.info.MethodInfo;
@@ -11,14 +9,9 @@ import com.xuxu.rpc.xrpc.info.MethodInfo;
  * @author xuxu
  *
  */
-public class XrpcRequestImpl implements XrpcRequest, Serializable {
+public class XrpcRequestImpl implements XrpcRequest{
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 5852170375319732307L;
-
-	private transient XrpcClient xrpcClient;
+	private XrpcClient xrpcClient;
 
 	private Object[] requestParams;
 
@@ -54,15 +47,18 @@ public class XrpcRequestImpl implements XrpcRequest, Serializable {
 	public HostInfo getHostInfo() {
 		return hostInfo;
 	}
-
-	@Override
-	public Integer getRequestId() {
-		return null;
-	}
-
+	
 	@Override
 	public void setHostInfo(HostInfo hostInfo) {
 		this.hostInfo= hostInfo;		
+	}
+
+	@Override
+	public RequestEntity newRequestEntity() {
+		RequestEntity entity=new RequestEntity();
+		entity.setMethodKey(getRequestKey());
+		entity.setParam(getRequestParams());
+		return entity;
 	}
 
 }

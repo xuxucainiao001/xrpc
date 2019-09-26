@@ -22,7 +22,9 @@ public enum ExceptionEnum {
 	E0018("0018","创建路由策略发生异常"),
 	E0019("0019","Xrpc服务端方法调用发生异常"),
 	E0020("0020","创建NettyClient服务发生异常"),
-	E0021("0021","创建NettyClient调用超时");
+	E0021("0021","创建NettyClient调用超时"),
+	E0022("0022","Xrpc序列化异常"),
+	E0023("0023","Xrpc反序列化异常");
 		
 	private ExceptionEnum(String code,String message){
 		this.code=code;
