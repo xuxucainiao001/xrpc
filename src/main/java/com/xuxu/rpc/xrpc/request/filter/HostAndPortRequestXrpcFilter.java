@@ -45,6 +45,7 @@ public class HostAndPortRequestXrpcFilter implements AbstractRequestXrpcFilter{
 		HostInfo hostInfo=routeStrategy.route(hostList);
 		logger.info("路由结果：{}",hostInfo);
 		request.setHostInfo(hostInfo);
+		chain.doChain(request, response);
 	}
 	
 	@Override

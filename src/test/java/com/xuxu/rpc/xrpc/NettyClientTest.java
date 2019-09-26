@@ -54,7 +54,7 @@ public class NettyClientTest {
 						}).addLast(nettyClientHandler);
 					}
 
-				}).connect("localhost", 8080).sync().channel();
+				}).connect("172.16.14.126", 8776).sync().channel();
 				
 		logger.info("Netty客户端启动完成....");
 		String requestId = UUID.randomUUID().toString();

@@ -4,8 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
-import com.xuxu.rpc.xrpc.XrpcBootstrapClient;
-import com.xuxu.rpc.xrpc.XrpcBootstrapServer;
+import com.xuxu.rpc.xrpc.XrpcServer;
 import com.xuxu.rpc.xrpc.context.XrpcRequestContext;
 import com.xuxu.rpc.xrpc.context.XrpcResponseContext;
 import com.xuxu.rpc.xrpc.exceptions.XrpcRuntimeException;
@@ -28,21 +27,19 @@ public class XrpcConfiguration {
 
 	private BeanProxyFactory beanProxyFactory;
 
-	private XrpcBootstrapClient xrpcBootstrapClient;
-	
-	private XrpcBootstrapServer xrpcBootstrapServer;
-
 	private static final String DEFAULT_BEAN_PROXY_FACTORY_NAME = "com.xuxu.rpc.xrpc.proxy.JdkBeanProxyFactory";
 	
 	public XrpcConfiguration() {
            
 	}
 	
-	public void init() {
+	public void initialize() {
 		 //打开注册中心
 		 openRigisterCenter();
 		 //注册路由策略
 		 rigisterRouteStrategyFactory();
+		 //打开服务端代理服务
+		 openXrpcServer();
 	}
 
 	public XrpcConfiguration(XrpcProperties xrpcProperties) {
@@ -63,38 +60,16 @@ public class XrpcConfiguration {
 		return beanProxyFactory;
 	}
 
-	/**
-	 * 创建consumer服务
-	 * 
-	 * @return
-	 */
-	public synchronized XrpcBootstrapClient getXrpcBootstrapClient() {
-		if (this.xrpcBootstrapClient != null) {
-			return this.xrpcBootstrapClient;
-		}
-		if (xrpcProperties.isOpenClient()) {
-			this.xrpcBootstrapClient = new XrpcBootstrapClient(this);
-			this.xrpcBootstrapClient.start();
-			return this.xrpcBootstrapClient;
-		} 
-			throw new XrpcRuntimeException(ExceptionEnum.E0004);
-	}
 	
 	/**
 	 * 创建provider服务
 	 * 
 	 * @return
 	 */
-	public synchronized XrpcBootstrapServer getXrpcBootstrapServer() {
-		if (this.xrpcBootstrapServer != null) {
-			return this.xrpcBootstrapServer;
-		}
+	private synchronized void openXrpcServer(){
 		if (xrpcProperties.isOpenServer()) {
-			this.xrpcBootstrapServer = new XrpcBootstrapServer(this);
-			this.xrpcBootstrapServer.start();
-			return this.xrpcBootstrapServer;
+			XrpcServer.open(xrpcProperties.getServerPort());
 		} 
-			throw new XrpcRuntimeException(ExceptionEnum.E0005);
 	}
 	
 	//获取配置信息

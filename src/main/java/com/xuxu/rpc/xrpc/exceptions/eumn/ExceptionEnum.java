@@ -19,7 +19,10 @@ public enum ExceptionEnum {
 	E0015("0015","不支持的注册中心类型"),
 	E0016("0016","获取本机地址失败"),
 	E0017("0017","没有获得方法的地址信息"),
-	E0018("0018","创建路由策略发生异常");
+	E0018("0018","创建路由策略发生异常"),
+	E0019("0019","Xrpc服务端方法调用发生异常"),
+	E0020("0020","创建NettyClient服务发生异常"),
+	E0021("0021","创建NettyClient调用超时");
 		
 	private ExceptionEnum(String code,String message){
 		this.code=code;

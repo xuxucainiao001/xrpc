@@ -29,7 +29,7 @@ public class NettyServerTest {
 		ServerBootstrap serverBoostrap = new ServerBootstrap();
 		serverBoostrap.group(boss, work);
 		serverBoostrap.childOption(ChannelOption.SO_KEEPALIVE, true).childOption(ChannelOption.TCP_NODELAY, true)
-				.option(ChannelOption.SO_BACKLOG, 1024).channel(NioServerSocketChannel.class).localAddress(8080)
+				.option(ChannelOption.SO_BACKLOG, 1024).channel(NioServerSocketChannel.class)
 				.childHandler(new ChannelInitializer<Channel>() {
 
 					@Override
@@ -39,10 +39,8 @@ public class NettyServerTest {
 						.addLast(new ChannelOutBoundHandler1())
 						.addLast(new ChannelInBoundHandler1())
 						.addLast(new ChannelInBoundHandler2());
-
-
 					}
-				}).bind().sync();
+				}).bind(8776).sync();
 		logger.info("Netty Server 启动成功....");
 
 	}

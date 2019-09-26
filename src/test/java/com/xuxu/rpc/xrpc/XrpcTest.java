@@ -14,10 +14,10 @@ public class XrpcTest {
 		XrpcProperties pro=new XrpcProperties();
 		String rigisterUrl="39.107.67.13:2181";
 		pro.setRigisterUrl(rigisterUrl);
-		pro.setOpenClient(true);
 		pro.setOpenServer(true);
+		pro.setOpenClient(true);
 		XrpcConfiguration con=new XrpcConfiguration(pro);
-		con.init();
+		con.initialize();
 		BeanProxyFactory factory=con.getBeanProxyFactory();
 		ClientBeanProxy clientBeanProxy=factory.getClientBeanProxy();
 		ServerBeanProxy serverBeanProxy=factory.getServerBeanProxy();	

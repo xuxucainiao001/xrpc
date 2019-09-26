@@ -1,19 +1,28 @@
 package com.xuxu.rpc.xrpc.configuration;
 
 public class XrpcProperties {
-	
+
 	private String proxyClassName;
 
-	private boolean openServer=false;
-		
-	private boolean openClient=false;
-	
+	private boolean openServer = false;
+
+	private boolean openClient = true;
+
 	private String rigisterUrl;
-	
-	private String rigisterType;	
-	
+
+	private String rigisterType;
+
 	private String routeStrategy;
-	
+
+	private int serverPort = 8776;
+
+	public int getServerPort() {
+		return serverPort;
+	}
+
+	public void setServerPort(int serverPort) {
+		this.serverPort = serverPort;
+	}
 
 	public String getRouteStrategy() {
 		return routeStrategy;
@@ -61,5 +70,5 @@ public class XrpcProperties {
 
 	public void setOpenClient(boolean openClient) {
 		this.openClient = openClient;
-	}	
+	}
 }
