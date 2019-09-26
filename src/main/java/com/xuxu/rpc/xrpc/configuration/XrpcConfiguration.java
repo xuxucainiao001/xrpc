@@ -60,18 +60,7 @@ public class XrpcConfiguration {
 		return beanProxyFactory;
 	}
 
-	
-	/**
-	 * 创建provider服务
-	 * 
-	 * @return
-	 */
-	private synchronized void openXrpcServer(){
-		if (xrpcProperties.isOpenServer()) {
-			XrpcServer.open(xrpcProperties.getServerPort());
-		} 
-	}
-	
+		
 	//获取配置信息
 	public XrpcProperties getXrpcProperties() {
 		return xrpcProperties;
@@ -101,6 +90,19 @@ public class XrpcConfiguration {
 		Rigister rigister= Rigister.open(xrpcProperties.getRigisterType(), xrpcProperties.getRigisterUrl());
 		XrpcResponseContext.setRigister(rigister);
 		XrpcRequestContext.setRigister(rigister);
+	}
+	
+
+	/**
+	 * 创建XrpcServer服务
+	 * 
+	 * @return
+	 */
+	private synchronized void openXrpcServer(){
+		if (xrpcProperties.isOpenServer()) {
+			XrpcServer xrpcServer=XrpcServer.open(xrpcProperties.getServerPort());
+			XrpcResponseContext.setXrpcServer(xrpcServer);
+		} 
 	}
 	
 	/**

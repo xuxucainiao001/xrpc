@@ -24,7 +24,6 @@ public class XrpcTest {
 		Method m=clientBeanProxy.createXrpcClientProxy(Method.class,null);
 		MethodImpl mi=new MethodImpl();
 		serverBeanProxy.createXrpcServerProxy(mi, null);
-		Thread.sleep(10000);
 		System.out.println(m.call(1,"2"));
 		System.out.println(m.call(2,"3"));	
 	}
