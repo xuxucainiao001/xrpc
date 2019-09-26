@@ -12,6 +12,8 @@ public interface XrpcResponse {
 	
 	public Throwable getThrowable();
 	
+	public Integer getRequestId();
+	
 	
 	
 }

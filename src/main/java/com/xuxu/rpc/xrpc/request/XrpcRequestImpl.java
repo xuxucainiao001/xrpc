@@ -3,6 +3,7 @@ package com.xuxu.rpc.xrpc.request;
 import java.io.Serializable;
 
 import com.xuxu.rpc.xrpc.annotations.XrpcClient;
+import com.xuxu.rpc.xrpc.info.HostInfo;
 import com.xuxu.rpc.xrpc.info.MethodInfo;
 
 /**
@@ -22,6 +23,9 @@ public class XrpcRequestImpl implements XrpcRequest, Serializable {
 	private Object[] requestParams;
 
 	private String requestKey;
+	
+	private HostInfo hostInfo;
+	
 
 	public XrpcRequestImpl(XrpcClient xrpcClient, Object[] requestParams, MethodInfo mi) {
 		this.xrpcClient = xrpcClient;
@@ -35,10 +39,6 @@ public class XrpcRequestImpl implements XrpcRequest, Serializable {
 		return this.requestParams;
 	}
 
-	@Override
-	public String[] getServerIps() {
-		return null;
-	}
 
 	@Override
 	public XrpcClient getMateDate() {
@@ -48,6 +48,21 @@ public class XrpcRequestImpl implements XrpcRequest, Serializable {
 	@Override
 	public String getRequestKey() {
 		return requestKey;
+	}
+
+	@Override
+	public HostInfo getHostInfo() {
+		return hostInfo;
+	}
+
+	@Override
+	public Integer getRequestId() {
+		return null;
+	}
+
+	@Override
+	public void setHostInfo(HostInfo hostInfo) {
+		this.hostInfo= hostInfo;		
 	}
 
 }

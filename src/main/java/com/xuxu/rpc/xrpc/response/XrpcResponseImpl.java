@@ -49,6 +49,11 @@ public class XrpcResponseImpl implements  XrpcResponse,Serializable{
 	public String toString() {
 		return "XrpcResponseImpl [result=" + result + ", throwable=" + throwable + "]";
 	}
+
+	@Override
+	public Integer getRequestId() {
+		return null;
+	}
 	
 	
 }

@@ -42,13 +42,13 @@ public class HostAndPortRequestXrpcFilter implements AbstractRequestXrpcFilter{
 			logger.error("没有获得方法的地址信息：{}",request.getRequestKey());
 			throw new XrpcRuntimeException(ExceptionEnum.E0017);
 		}
-		HostInfo hs=routeStrategy.route(hostList);
-		logger.info("路由结果：{}",hs);
+		HostInfo hostInfo=routeStrategy.route(hostList);
+		logger.info("路由结果：{}",hostInfo);
+		request.setHostInfo(hostInfo);
 	}
 	
 	@Override
 	public int getOrder() {
 		return 1;
 	}
-
 }

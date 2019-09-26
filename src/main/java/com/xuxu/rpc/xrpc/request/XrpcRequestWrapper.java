@@ -1,12 +1,8 @@
 package com.xuxu.rpc.xrpc.request;
 
 import com.xuxu.rpc.xrpc.annotations.XrpcClient;
+import com.xuxu.rpc.xrpc.info.HostInfo;
 
-/**
- * XrpcRequest包装类
- * @author xuxu
- *
- */
 public class XrpcRequestWrapper implements XrpcRequest{
 	
 	private XrpcRequest xrpcRequest;
@@ -21,8 +17,13 @@ public class XrpcRequestWrapper implements XrpcRequest{
 	}
 
 	@Override
-	public String[] getServerIps() {
-		return xrpcRequest.getServerIps();
+	public String getRequestKey() {
+		return xrpcRequest.getRequestKey();
+	}
+
+	@Override
+	public HostInfo getHostInfo() {
+		return xrpcRequest.getHostInfo();
 	}
 
 	@Override
@@ -31,8 +32,13 @@ public class XrpcRequestWrapper implements XrpcRequest{
 	}
 
 	@Override
-	public String getRequestKey() {
-		return xrpcRequest.getRequestKey();
+	public Integer getRequestId() {
+		return xrpcRequest.getRequestId();
 	}
 
+	@Override
+	public void setHostInfo(HostInfo hostInfo) {
+		xrpcRequest.setHostInfo(hostInfo);	
+	}
+	
 }

@@ -78,7 +78,7 @@ public class ZookeeperExecutor implements Runnable {
 	public void rigister(String methodInfo, String hostPort) {
 		synchronized (this) {
 			try {
-				if (zk == null) {
+				while (zk == null) {
 					this.wait();
 				}
 				// 检查接口信息是否已经注入
@@ -158,7 +158,6 @@ class WatcherImpl implements Watcher {
 			if (watchedEvent.getType() == Event.EventType.NodeCreated) {
 				// 发生节点创建
 				try {
-
 					byte[] data = zk.getData(watchedEvent.getPath(), true, null);
 					String hostAndport = new String(data);
 					if (ZookeeperExecutor.XRPC_ROOT_NODE.equals(hostAndport)||"".equals(hostAndport)) {
