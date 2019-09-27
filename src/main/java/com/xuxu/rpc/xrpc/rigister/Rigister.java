@@ -35,6 +35,8 @@ public abstract class Rigister {
 	public abstract void close();
 
 	public abstract RigisterInfo getRigisterInfo();
+	
+	public abstract void syncNodes();
 
 }
 
@@ -60,6 +62,11 @@ class ZooKeeperRigisterImpl extends Rigister {
 	@Override
 	public RigisterInfo getRigisterInfo() {
 		return excutor.getRigisterInfo();
+	}
+
+	@Override
+	public void syncNodes() {
+		excutor.syncNodeDate();		
 	}
 
 }

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.CollectionUtils;
 
 import com.xuxu.rpc.xrpc.context.XrpcRequestContext;
 import com.xuxu.rpc.xrpc.exceptions.XrpcRuntimeException;
@@ -37,12 +38,19 @@ public class HostAndPortRequestXrpcFilter implements AbstractRequestXrpcFilter{
 	public void doFilter(XrpcFilterChain chain, XrpcRequest request, XrpcResponse response) {
 		//获取注册中心
 		Rigister rigister=XrpcRequestContext.getRigister();
-		List<HostInfo> hostList=rigister.getRigisterInfo().getInfo(request.getRequestKey());
+		List<HostInfo> hostList=null;
+		//才能够本地注册环境中查询
+		hostList=rigister.getRigisterInfo().getInfo(request.getRequestKey());
+        if(CollectionUtils.isEmpty(hostList)) {
+		  //重新同步zookeeper节点信息
+        	rigister.syncNodes();
+        	hostList=rigister.getRigisterInfo().getInfo(request.getRequestKey());
+		}
 		if(hostList==null) {
-			logger.error("没有获得方法的地址信息：{}",request.getRequestKey());
+			logger.info("没有获得方法的地址信息：{}",request.getRequestKey());
 			throw new XrpcRuntimeException(ExceptionEnum.E0017);
 		}
-		HostInfo hostInfo=routeStrategy.route(hostList);
+		HostInfo hostInfo=routeStrategy.route(hostList);		
 		logger.info("路由结果：{}",hostInfo);
 		request.setHostInfo(hostInfo);
 		chain.doChain(request, response);

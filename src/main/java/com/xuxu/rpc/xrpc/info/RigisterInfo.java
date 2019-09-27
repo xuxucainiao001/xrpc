@@ -1,6 +1,7 @@
 package com.xuxu.rpc.xrpc.info;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -8,9 +9,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.xuxu.rpc.xrpc.exceptions.XrpcRuntimeException;
-import com.xuxu.rpc.xrpc.exceptions.eumn.ExceptionEnum;
 
 public class RigisterInfo {
 	
@@ -36,8 +34,8 @@ public class RigisterInfo {
 	public List<HostInfo> getInfo(String methodInfo) {
 		Set<HostInfo> hostAndPortSet=rigisterInfoMap.get(methodInfo);
 		if(hostAndPortSet==null) {
-			logger.error("没有获得方法的地址信息：{}",methodInfo);
-			throw new XrpcRuntimeException(ExceptionEnum.E0017);
+			logger.info("没有获得方法的地址信息：{}",methodInfo);	
+			return Collections.emptyList();
 		}
 		return new ArrayList<>(hostAndPortSet);
 	}
