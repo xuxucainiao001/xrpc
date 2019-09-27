@@ -2,7 +2,6 @@ package com.xuxu.rpc.xrpc.request;
 
 import com.xuxu.rpc.xrpc.annotations.XrpcConsumer;
 import com.xuxu.rpc.xrpc.info.HostInfo;
-import com.xuxu.rpc.xrpc.info.MethodInfo;
 
 /**
  * XrpcRequest默认实现
@@ -14,33 +13,22 @@ public class XrpcRequestImpl implements XrpcRequest{
 	private XrpcConsumer xrpcConsumer;
 
 	private Object[] requestParams;
-
-	private String requestKey;
+	
+	private String methodKey;
 	
 	private HostInfo hostInfo;
-	
+		
 
-	public XrpcRequestImpl(XrpcConsumer xrpcConsumer, Object[] requestParams, MethodInfo mi) {
+	public XrpcRequestImpl(XrpcConsumer xrpcConsumer, Object[] requestParams, String methodKey) {
 		this.xrpcConsumer = xrpcConsumer;
 		this.requestParams = requestParams;
-		requestKey = mi.getMethodKey();
+		this.methodKey =methodKey;
 
 	}
 
 	@Override
 	public Object[] getRequestParams() {
 		return this.requestParams;
-	}
-
-
-	@Override
-	public XrpcConsumer getMateDate() {
-		return this.xrpcConsumer;
-	}
-
-	@Override
-	public String getRequestKey() {
-		return requestKey;
 	}
 
 	@Override
@@ -52,13 +40,24 @@ public class XrpcRequestImpl implements XrpcRequest{
 	public void setHostInfo(HostInfo hostInfo) {
 		this.hostInfo= hostInfo;		
 	}
-
+	
+	public XrpcConsumer getMataDate() {
+		return this.xrpcConsumer;
+	}
+	
 	@Override
 	public RequestEntity newRequestEntity() {
 		RequestEntity entity=new RequestEntity();
-		entity.setMethodKey(getRequestKey());
+		entity.setMethodKey(methodKey);
 		entity.setParam(getRequestParams());
 		return entity;
 	}
+
+	@Override
+	public String getMethodKey() {
+		return this.methodKey;
+	}
+
+	
 
 }

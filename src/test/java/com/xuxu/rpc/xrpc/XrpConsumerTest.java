@@ -1,11 +1,12 @@
 package com.xuxu.rpc.xrpc;
 
+
 import com.xuxu.rpc.xrpc.configuration.XrpcConfiguration;
 import com.xuxu.rpc.xrpc.configuration.XrpcProperties;
 import com.xuxu.rpc.xrpc.proxy.BeanProxyFactory;
 import com.xuxu.rpc.xrpc.proxy.ClientBeanProxy;
 
-public class XrpcTest {
+public class XrpConsumerTest {
 	
 	
 	public static void main(String[] args) throws Exception {
@@ -13,21 +14,32 @@ public class XrpcTest {
 		XrpcProperties pro=new XrpcProperties();
 		String rigisterUrl="39.107.67.13:2181";
 		pro.setRigisterUrl(rigisterUrl);
-		//pro.setOpenServer(true);
 		pro.setOpenClient(true);
 		XrpcConfiguration con=new XrpcConfiguration(pro);
 		con.initialize();
 		BeanProxyFactory factory=con.getBeanProxyFactory();
 		ClientBeanProxy clientBeanProxy=factory.getClientBeanProxy();
-		//ServerBeanProxy serverBeanProxy=factory.getServerBeanProxy();	
 		Method m=clientBeanProxy.createXrpcClientProxy(Method.class,null);
-		//MethodImpl mi=new MethodImpl();
-		//serverBeanProxy.createXrpcServerProxy(mi, null);
-		System.out.println(m.call(1,"2"));
-		System.out.println(m.call(2,"3"));	
-		System.out.println(m.call(2,"4"));	
-		System.out.println(m.call(2,"5"));	
-		System.out.println(m.call(2,"6"));	
+		try {
+			System.out.println(m.call(1,"2"));
+		}catch(Exception e) {
+			
+		}
+		try {
+			System.out.println(m.call(1,"3"));
+		}catch(Exception e) {
+			
+		}
+		try {
+			System.out.println(m.call(1,"4"));
+		}catch(Exception e) {
+			
+		}
+		try {
+			System.out.println(m.call(1,"5"));
+		}catch(Exception e) {
+			
+		}	
 	}
 
 }

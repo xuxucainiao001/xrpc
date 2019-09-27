@@ -5,7 +5,7 @@ import com.xuxu.rpc.xrpc.configuration.XrpcProperties;
 import com.xuxu.rpc.xrpc.proxy.BeanProxyFactory;
 import com.xuxu.rpc.xrpc.proxy.ServerBeanProxy;
 
-public class XrpcTest2 {
+public class XrpcProviderTest2 {
 	
 	
 	public static void main(String[] args) throws Exception {

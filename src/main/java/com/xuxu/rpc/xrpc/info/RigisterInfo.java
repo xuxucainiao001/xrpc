@@ -2,13 +2,14 @@ package com.xuxu.rpc.xrpc.info;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.CollectionUtils;
 
 public class RigisterInfo {
 	
@@ -22,8 +23,8 @@ public class RigisterInfo {
 	
 	public void putInfo(String methodInfo,String hostPort) {
 		Set<HostInfo> hostAndPortSet=rigisterInfoMap.get(methodInfo);
-		if(hostAndPortSet==null) {
-			hostAndPortSet=new HashSet<>();
+		if(CollectionUtils.isEmpty(hostAndPortSet)) {
+			hostAndPortSet=new CopyOnWriteArraySet<>();
 		}
 		HostInfo hostInfo=new HostInfo(hostPort);
 		hostAndPortSet.add(hostInfo);		
@@ -33,12 +34,20 @@ public class RigisterInfo {
 	
 	public List<HostInfo> getInfo(String methodInfo) {
 		Set<HostInfo> hostAndPortSet=rigisterInfoMap.get(methodInfo);
-		if(hostAndPortSet==null) {
+		if(CollectionUtils.isEmpty(hostAndPortSet)) {
 			logger.info("没有获得方法的地址信息：{}",methodInfo);	
 			return Collections.emptyList();
 		}
 		return new ArrayList<>(hostAndPortSet);
 	}
+	
+	public void removeInfo(String methodInfo,HostInfo hostInfo) {
+		Set<HostInfo> hostAndPortSet=rigisterInfoMap.get(methodInfo);
+		if(!CollectionUtils.isEmpty(hostAndPortSet)) {
+			hostAndPortSet.remove(hostInfo);
+		}		
+	}
+	
 	
 	@Override
 	public String toString() {

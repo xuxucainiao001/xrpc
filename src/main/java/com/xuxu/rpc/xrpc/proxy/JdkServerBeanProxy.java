@@ -80,7 +80,7 @@ class SeverProxyImpl implements ServerProxy {
 	@Override
 	public XrpcResponse invoke(XrpcRequest xrpcRequest) {
 		
-		MethodInfo invokedMethodInfo = XrpcResponseContext.getMethodCache(xrpcRequest.getRequestKey());
+		MethodInfo invokedMethodInfo = XrpcResponseContext.getMethodCache(xrpcRequest.getMethodKey());
 		logger.info("调用的MethodInfo信息：{}", invokedMethodInfo);
 		Object result = null;
 		Throwable exception = null;

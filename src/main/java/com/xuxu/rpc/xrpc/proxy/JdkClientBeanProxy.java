@@ -76,7 +76,7 @@ class XrpcInvocationHandler implements InvocationHandler {
 		// 构建请求调用链
 		XrpcFilterChain chain = new RequestXrpcFilterChain();
 		XrpcResponse response=new XrpcResponseImpl();
-		XrpcRequest request=new XrpcRequestImpl(xrpcConsumer, args, methodInfo);
+		XrpcRequest request=new XrpcRequestImpl(xrpcConsumer, args, methodInfo.getMethodKey());
 		chain.doChain(request,response);
 		logger.debug("响应结果信息：{}", response);
 		if(!response.hasException()) {

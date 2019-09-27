@@ -5,17 +5,19 @@ import com.xuxu.rpc.xrpc.info.HostInfo;
 
 public interface XrpcRequest {
 	
-	Object[] getRequestParams();
-	
-	String getRequestKey();
-	
-	XrpcConsumer getMateDate();
+    String getMethodKey();
+    
+    public Object[] getRequestParams(); 
 	
 	HostInfo getHostInfo();
+	
+	public XrpcConsumer getMataDate();
 	
 	void setHostInfo(HostInfo hostInfo);
 	
 	RequestEntity newRequestEntity();
+	
+	
 	
 	
 	
