@@ -1,5 +1,7 @@
 package com.xuxu.rpc.xrpc.configuration;
 
+import com.xuxu.rpc.xrpc.constants.XrpcConstant;
+
 public class XrpcProperties {
 
 	private String proxyClassName;
@@ -14,7 +16,7 @@ public class XrpcProperties {
 
 	private String routeStrategy;
 
-	private int serverPort = 8776;
+	private int serverPort = XrpcConstant.SERVER_PORT_DEFAULT;
 
 	public int getServerPort() {
 		return serverPort;

@@ -34,8 +34,6 @@ public class NettyClient {
 	
 	private static ConcurrentMap<HostInfo,Channel> invokeMap=new ConcurrentHashMap<>();
 	
-	private static NettyClientInvokeHandler nettyClientInvokeHandler=new NettyClientInvokeHandler(responseMap);
-	
 	private static AtomicInteger requestIdGenerater=new AtomicInteger(0) ;
 	
 	private NettyClient() {}
@@ -58,7 +56,7 @@ public class NettyClient {
 							ch.pipeline()
 							  .addLast(new XrpcEncodeHandler<RequestEntity>())
 							  .addLast(new XrpcDecodeHandler())
-							  .addLast(nettyClientInvokeHandler);
+							  .addLast(new NettyClientInvokeHandler(responseMap,ch));
 						}
 						
 					}).connect(hp.getHost().trim(), hp.getPort()).sync().channel();
@@ -73,27 +71,31 @@ public class NettyClient {
 		}
 	}
 	
-	public static int invoke(XrpcRequest xrpcRequest) {
+	public static ResponseEntity invoke(XrpcRequest xrpcRequest) throws InterruptedException {
 		HostInfo hostInfo=xrpcRequest.getHostInfo();
 		Channel channel=invokeMap.get(hostInfo);
 		if(channel==null||!channel.isOpen()) {
 			createNew(hostInfo);
 		}
+		channel=invokeMap.get(hostInfo);
 		int requestId=requestIdGenerater.incrementAndGet();		
 		RequestEntity requestEntity=xrpcRequest.newRequestEntity();
 		requestEntity.setRequestId(requestId);
-		invokeMap.get(hostInfo).writeAndFlush(requestEntity);
-		return requestId;
-	}
-	
-	public static ResponseEntity getResult(int requestId){
-		ResponseEntity responseEntity=null;
-		try {
-			responseEntity = nettyClientInvokeHandler.getXrpcResponse(requestId);
-		} catch (Exception e) {
-			logger.error("获取调用结果异常：{}",e);
+		channel.writeAndFlush(requestEntity);
+		//获取返回结果		
+		int i=0;
+		while(responseMap.get(requestId)==null) {
+			i++;
+			synchronized(channel) {
+				//5秒没有获取结果，重新判断
+				channel.wait(5000);
+			}
+			if(i>2) {
+				logger.error("NettyClient调用超时！requestId:{}",requestId);
+				throw new XrpcRuntimeException(ExceptionEnum.E0021);
+			}
 		}
-		return responseEntity;
+		return responseMap.get(requestId);
 	}
 
 }
@@ -104,10 +106,12 @@ class NettyClientInvokeHandler  extends ChannelInboundHandlerAdapter {
 	private static Logger logger = LoggerFactory.getLogger(NettyClientInvokeHandler.class);
 	
 	private ConcurrentMap<Integer, ResponseEntity> responseMap;
-
+    
+	private Channel channel;
 	
-	public NettyClientInvokeHandler(ConcurrentMap<Integer, ResponseEntity> responseMap) {
+	public NettyClientInvokeHandler(ConcurrentMap<Integer, ResponseEntity> responseMap,Channel channel) {
 		this.responseMap=responseMap;
+		this.channel=channel;
 	}
 	
 	@Override
@@ -120,8 +124,8 @@ class NettyClientInvokeHandler  extends ChannelInboundHandlerAdapter {
 			ResponseEntity responseEntity=(ResponseEntity)msg;
 			logger.info("NettyClient收到消息：{}" , responseEntity);
 			responseMap.put(responseEntity.getRequestId(), responseEntity);
-			synchronized (this) {
-				notifyAll();
+			synchronized (channel) {
+				channel.notifyAll();
 			}			
 	}
 
@@ -132,20 +136,5 @@ class NettyClientInvokeHandler  extends ChannelInboundHandlerAdapter {
 		ctx.channel().close();
 	}
 	
-	public synchronized ResponseEntity getXrpcResponse(Integer requestId) throws InterruptedException {
-		int i=0;
-		while(responseMap.get(requestId)==null) {
-			i++;
-			synchronized(this) {
-				//5秒没有获取结果，重新判断
-				this.wait(5000);
-			}
-			if(i>2) {
-				logger.error("NettyClient调用超时！requestId:{}",requestId);
-				throw new XrpcRuntimeException(ExceptionEnum.E0021);
-			}
-		}
-		return responseMap.get(requestId);
-	} 
 
 }

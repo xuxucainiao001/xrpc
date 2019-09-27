@@ -2,6 +2,7 @@ package com.xuxu.rpc.xrpc.context;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.xuxu.rpc.xrpc.configuration.XrpcConfiguration;
 import com.xuxu.rpc.xrpc.info.MethodInfo;
 import com.xuxu.rpc.xrpc.rigister.Rigister;
 import com.xuxu.rpc.xrpc.route.RouteStrategyFactory;
@@ -19,6 +20,8 @@ public class XrpcRequestContext {
 	private static Rigister rigister;
 	
 	private static RouteStrategyFactory routeStrategyFactory;
+	
+	private static XrpcConfiguration con;
 	
 	//methodInfo 缓存
 	private static final ConcurrentHashMap<Class<?>, MethodInfo> methodInfoCache=new ConcurrentHashMap<>();
@@ -49,6 +52,14 @@ public class XrpcRequestContext {
 	
 	public static RouteStrategyFactory getRouteStrategyFactory() {
 		return XrpcRequestContext.routeStrategyFactory;
+	}
+	
+	public static void setConfiguration(XrpcConfiguration con) {
+		XrpcRequestContext.con=con;
+	}
+	
+	public static XrpcConfiguration getConfiguration() {
+		return XrpcRequestContext.con;
 	}
 	
 }

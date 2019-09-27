@@ -10,7 +10,7 @@ public final class XrpcConstant {
 	
 	public static final String RIGISTER_TYPE_REDIS="redis";
 	
-	public static final int SERVER_PORT=8776;
+	public static final int SERVER_PORT_DEFAULT=8776;
 	
 	
 

@@ -15,7 +15,7 @@ public class PollRouteStrategy implements RouteStrategy {
 
 	@Override
 	public HostInfo route(List<HostInfo> list) {
-		if(++next>=list.size()-1) {
+		if(++next>list.size()-1) {
 			next=0;
 		}
 		return list.get(next);

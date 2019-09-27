@@ -1,7 +1,9 @@
 package com.xuxu.rpc.xrpc.rigister.zk;
 
 import java.io.IOException;
+import java.util.List;
 
+import org.apache.zookeeper.AsyncCallback.ChildrenCallback;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
@@ -38,8 +40,9 @@ public class ZookeeperExecutor implements Runnable {
 				zk = new ZooKeeper(hostPort, 10000, null);
 				// 注册监听器
 				zk.register(new WatcherImpl(zk, rigisterInfo));
-				// 启动时，异步创建主节点
+				// 启动时，同步创建主节点
 				createMainNode();
+				syncNodeDate();
 				logger.info("启动zookeeper成功！");
 				stop=false;
 				// 启动完成打开锁
@@ -52,14 +55,37 @@ public class ZookeeperExecutor implements Runnable {
 		}
 
 	}
+	
+	/**
+	 * 同步节点数据
+	 */
+	private void syncNodeDate() {
+		zk.getChildren(XRPC_ROOT_NODE, true,new ChildrenCallback() {
+
+			@Override
+			public void processResult(int rc, String path, Object ctx, List<String> children) {
+				logger.info("zookeeper所有节点：{}",children);
+				for(String child:children) {
+					String paths=XRPC_ROOT_NODE+"/"+child;
+					try {
+						List<String> hps=zk.getChildren(paths,true);
+						hps.forEach(hp->rigisterInfo.putInfo(child, hp));						
+					} catch (Exception e) {
+						logger.error("获取zk节点数据失败，节点：{}，异常：{}",paths,e);
+					}
+				}
+			}},
+				"同步zookeeper节点");
+	}
 
 	private void createMainNode() {
 		try {
 			Stat stat = zk.exists(XRPC_ROOT_NODE, true);
-			if (stat == null) {
+			if (stat == null) {				
 				zk.create(XRPC_ROOT_NODE, "".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE,
 						CreateMode.PERSISTENT);
 			}
+			logger.info("xrpc再zookeeper的主节点已经存在！");
 		} catch (Exception e) {
 			logger.error("启动zookeeper创建主节点失败：{}", e);
 		}
@@ -168,7 +194,7 @@ class WatcherImpl implements Watcher {
 					}
 					String[] nodes = watchedEvent.getPath().split("/");
 					String methodInfo = nodes[nodes.length - 2];
-					logger.info("创建新的节点：{}：{}", methodInfo, hostAndport);
+					logger.info("创建新的节点：{}", methodInfo);
 					// 重新注册
 					rigisterInfo.putInfo(methodInfo, hostAndport);
 				} catch (Exception e) {
@@ -185,9 +211,21 @@ class WatcherImpl implements Watcher {
 					String[] nodes = watchedEvent.getPath().split("/");
 					String methodInfo = nodes[nodes.length - 2];
 					
-					logger.info("节点发生变化：{}：{}", watchedEvent.getPath(), hostAndport);
+					logger.info("节点发生变化：{}", watchedEvent.getPath());
 					// 重新注册
 					rigisterInfo.putInfo(methodInfo, hostAndport);
+				} catch (Exception e) {
+					logger.error("获取节点数据异常：{}", e);
+				}
+			}else if (watchedEvent.getType() == Event.EventType.NodeChildrenChanged) {
+				// 发生节点创建
+				try {
+					byte[] data = zk.getData(watchedEvent.getPath(), true, null);
+					String hostAndport = new String(data);
+					if (ZookeeperExecutor.XRPC_ROOT_NODE.equals(hostAndport)||"".equals(hostAndport)) {
+						return;
+					}
+				    logger.info("子节点发生变动：{}",new String(data));
 				} catch (Exception e) {
 					logger.error("获取节点数据异常：{}", e);
 				}

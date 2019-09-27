@@ -40,6 +40,14 @@ public class XrpcConfiguration {
 		 rigisterRouteStrategyFactory();
 		 //打开服务端代理服务
 		 openXrpcServer();
+		 //向上下文中注册自己
+		 if(xrpcProperties.isOpenClient()) {
+			 XrpcRequestContext.setConfiguration(this);
+		 }
+		 if(xrpcProperties.isOpenServer()) {
+			 XrpcResponseContext.setConfiguration(this);
+		 }
+		 
 	}
 
 	public XrpcConfiguration(XrpcProperties xrpcProperties) {

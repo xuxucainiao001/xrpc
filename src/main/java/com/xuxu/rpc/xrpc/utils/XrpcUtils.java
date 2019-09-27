@@ -1,14 +1,15 @@
 package com.xuxu.rpc.xrpc.utils;
 
 import java.io.UnsupportedEncodingException;
-import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.xuxu.rpc.xrpc.constants.XrpcConstant;
+import com.xuxu.rpc.xrpc.configuration.XrpcConfiguration;
+import com.xuxu.rpc.xrpc.context.XrpcRequestContext;
+import com.xuxu.rpc.xrpc.context.XrpcResponseContext;
 import com.xuxu.rpc.xrpc.exceptions.XrpcRuntimeException;
 import com.xuxu.rpc.xrpc.exceptions.eumn.ExceptionEnum;
 import com.xuxu.rpc.xrpc.info.HostInfo;
@@ -32,8 +33,12 @@ public class XrpcUtils {
 	
 	public static HostInfo localHostInfo() {
 		try {
-			InetAddress ip4 = Inet4Address.getLocalHost();
-			return new HostInfo(ip4.getHostAddress(),XrpcConstant.SERVER_PORT);
+			InetAddress ip4 = InetAddress.getLocalHost();
+			XrpcConfiguration con=XrpcRequestContext.getConfiguration();
+			if(con==null) {
+				con=XrpcResponseContext.getConfiguration();
+			}
+			return new HostInfo(ip4.getHostAddress(),con.getXrpcProperties().getServerPort());
 		} catch (UnknownHostException e) {
 			logger.error("获取本机地址失败：{}",e);
 			throw new XrpcRuntimeException(ExceptionEnum.E0016);

@@ -24,7 +24,9 @@ public enum ExceptionEnum {
 	E0020("0020","创建NettyClient服务发生异常"),
 	E0021("0021","创建NettyClient调用超时"),
 	E0022("0022","Xrpc序列化异常"),
-	E0023("0023","Xrpc反序列化异常");
+	E0023("0023","Xrpc反序列化异常"),
+	E0024("0024","方法调用发生异常");
+	
 		
 	private ExceptionEnum(String code,String message){
 		this.code=code;

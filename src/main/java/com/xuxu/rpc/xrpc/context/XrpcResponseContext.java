@@ -3,6 +3,7 @@ package com.xuxu.rpc.xrpc.context;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.xuxu.rpc.xrpc.XrpcServer;
+import com.xuxu.rpc.xrpc.configuration.XrpcConfiguration;
 import com.xuxu.rpc.xrpc.info.MethodInfo;
 import com.xuxu.rpc.xrpc.proxy.ServerProxy;
 import com.xuxu.rpc.xrpc.rigister.Rigister;
@@ -17,6 +18,8 @@ public class XrpcResponseContext {
 	private static Rigister rigister;
 	
 	private static XrpcServer xrpcServer;
+	
+	private static XrpcConfiguration con;
 
 	private XrpcResponseContext() {
 	}
@@ -53,6 +56,14 @@ public class XrpcResponseContext {
 	
 	public static XrpcServer getXrpcServer() {
 		return XrpcResponseContext.xrpcServer;
+	}
+	
+	public static void setConfiguration(XrpcConfiguration con) {
+		XrpcResponseContext.con=con;
+	}
+	
+	public static XrpcConfiguration getConfiguration() {
+		return XrpcResponseContext.con;
 	}
 
 }
