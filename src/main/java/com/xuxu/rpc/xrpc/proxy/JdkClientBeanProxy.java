@@ -72,13 +72,13 @@ class XrpcInvocationHandler implements InvocationHandler {
 			}
 		}
 		// 打印每次请求方法信息
-		logger.info("请求方法信息：{}", methodInfo);
+		logger.debug("请求方法信息：{}", methodInfo);
 		// 构建请求调用链
 		XrpcFilterChain chain = new RequestXrpcFilterChain();
 		XrpcResponse response=new XrpcResponseImpl();
 		XrpcRequest request=new XrpcRequestImpl(xrpcClient, args, methodInfo);
 		chain.doChain(request,response);
-		logger.info("响应结果信息：{}", response);
+		logger.debug("响应结果信息：{}", response);
 		if(!response.hasException()) {
 			return response.getResult();
 		}
