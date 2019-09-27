@@ -26,6 +26,9 @@ public class XrpcTest {
 		serverBeanProxy.createXrpcServerProxy(mi, null);
 		System.out.println(m.call(1,"2"));
 		System.out.println(m.call(2,"3"));	
+		System.out.println(m.call(2,"4"));	
+		System.out.println(m.call(2,"5"));	
+		System.out.println(m.call(2,"6"));	
 	}
 
 }

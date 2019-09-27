@@ -38,5 +38,10 @@ public class ResponseEntity implements Serializable{
 	public void setRequestId(int requestId) {
 		this.requestId = requestId;
 	}
+
+	@Override
+	public String toString() {
+		return "ResponseEntity [throwable=" + throwable + ", result=" + result + ", requestId=" + requestId + "]";
+	}
 	
 }

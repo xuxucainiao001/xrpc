@@ -10,20 +10,17 @@ import com.xuxu.rpc.xrpc.context.XrpcResponseContext;
 import com.xuxu.rpc.xrpc.exceptions.XrpcRuntimeException;
 import com.xuxu.rpc.xrpc.exceptions.eumn.ExceptionEnum;
 import com.xuxu.rpc.xrpc.info.MethodInfo;
+import com.xuxu.rpc.xrpc.netty.decode.XrpcDecodeHandler;
+import com.xuxu.rpc.xrpc.netty.decode.XrpcEncodeHandler;
 import com.xuxu.rpc.xrpc.request.RequestEntity;
 import com.xuxu.rpc.xrpc.response.ResponseEntity;
-import com.xuxu.rpc.xrpc.utils.XrpcSerializerUtils;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
-import io.netty.channel.ChannelOutboundHandlerAdapter;
-import io.netty.channel.ChannelPromise;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -54,8 +51,8 @@ public class NettyServer {
 						@Override
 						protected void initChannel(Channel ch) throws Exception {
 							ch.pipeline()	
-							        .addLast(new NettyServerEncoderHandler())
-									.addLast(new NettyServerDecoderHandler())
+							        .addLast(new XrpcEncodeHandler<ResponseEntity>())
+									.addLast(new XrpcDecodeHandler())
 									.addLast(new NettyServerInvokeHandler())
 									;
 							        
@@ -81,34 +78,6 @@ public class NettyServer {
 
 }
 
-class NettyServerDecoderHandler extends ChannelInboundHandlerAdapter {
-
-	private Logger logger = LoggerFactory.getLogger(NettyServerDecoderHandler.class);
-
-	@Override
-	public void channelRead(ChannelHandlerContext ctx, Object msg) {
-		ByteBuf byteBuf =(ByteBuf)msg;
-		RequestEntity requestEntity = XrpcSerializerUtils.deserialize(byteBuf.array());
-		logger.info("NettyServer 收到请求对象：{}", requestEntity);
-		ctx.fireChannelRead(requestEntity);
-	}
-
-}
-
-class NettyServerEncoderHandler extends ChannelOutboundHandlerAdapter {
-
-	private Logger logger = LoggerFactory.getLogger(NettyServerEncoderHandler.class);
-
-	@Override
-	public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-		ResponseEntity responseEntity = (ResponseEntity) msg;
-		logger.info("Netty Server 响应消息：{}", responseEntity);
-		byte[] bytes=XrpcSerializerUtils.serialize(responseEntity);
-		ctx.writeAndFlush(Unpooled.copiedBuffer(bytes));
-	}
-
-}
-
 class NettyServerInvokeHandler extends ChannelInboundHandlerAdapter {
 
 	private Logger logger = LoggerFactory.getLogger(NettyServerInvokeHandler.class);
@@ -116,7 +85,7 @@ class NettyServerInvokeHandler extends ChannelInboundHandlerAdapter {
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) {
 		RequestEntity requestEntity = (RequestEntity) msg;
-		logger.info("服务端NettySeverInvokeHandler收到消息：{}", requestEntity);
+		logger.info("NettyServer收到消息：{}", requestEntity);
 		MethodInfo methodInfo = XrpcResponseContext.getMethodCache(requestEntity.getMethodKey());
 		Method mothod = methodInfo.getMethod();
 		Object methodImplObject = methodInfo.getIntfImpl();
@@ -134,7 +103,7 @@ class NettyServerInvokeHandler extends ChannelInboundHandlerAdapter {
 		responseEntity.setResult(result);
 		responseEntity.setThrowable(invokeException);
 		responseEntity.setRequestId(requestEntity.getRequestId());
-		ctx.fireChannelRead(responseEntity);
+		ctx.writeAndFlush(responseEntity);
 	}
 
 }

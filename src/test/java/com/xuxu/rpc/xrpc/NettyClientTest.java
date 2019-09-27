@@ -68,11 +68,11 @@ class NettyClientHandler1  extends ChannelInboundHandlerAdapter {
 	
 	private static Logger logger = LoggerFactory.getLogger(NettyClientHandler1.class);
 	
-	private ConcurrentHashMap<String, String> responseMap;
+	//private ConcurrentHashMap<String, String> responseMap;
 
 	
 	public NettyClientHandler1(ConcurrentHashMap<String, String> responseMap) {
-		this.responseMap=responseMap;
+		//this.responseMap=responseMap;
 	}
 	
 	@Override
