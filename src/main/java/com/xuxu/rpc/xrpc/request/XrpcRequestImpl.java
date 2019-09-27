@@ -1,6 +1,6 @@
 package com.xuxu.rpc.xrpc.request;
 
-import com.xuxu.rpc.xrpc.annotations.XrpcClient;
+import com.xuxu.rpc.xrpc.annotations.XrpcConsumer;
 import com.xuxu.rpc.xrpc.info.HostInfo;
 import com.xuxu.rpc.xrpc.info.MethodInfo;
 
@@ -11,7 +11,7 @@ import com.xuxu.rpc.xrpc.info.MethodInfo;
  */
 public class XrpcRequestImpl implements XrpcRequest{
 
-	private XrpcClient xrpcClient;
+	private XrpcConsumer xrpcConsumer;
 
 	private Object[] requestParams;
 
@@ -20,8 +20,8 @@ public class XrpcRequestImpl implements XrpcRequest{
 	private HostInfo hostInfo;
 	
 
-	public XrpcRequestImpl(XrpcClient xrpcClient, Object[] requestParams, MethodInfo mi) {
-		this.xrpcClient = xrpcClient;
+	public XrpcRequestImpl(XrpcConsumer xrpcConsumer, Object[] requestParams, MethodInfo mi) {
+		this.xrpcConsumer = xrpcConsumer;
 		this.requestParams = requestParams;
 		requestKey = mi.getMethodKey();
 
@@ -34,8 +34,8 @@ public class XrpcRequestImpl implements XrpcRequest{
 
 
 	@Override
-	public XrpcClient getMateDate() {
-		return this.xrpcClient;
+	public XrpcConsumer getMateDate() {
+		return this.xrpcConsumer;
 	}
 
 	@Override

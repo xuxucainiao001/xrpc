@@ -4,8 +4,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
 
-import com.xuxu.rpc.xrpc.annotations.XrpcClient;
-import com.xuxu.rpc.xrpc.annotations.XrpcServer;
+import com.xuxu.rpc.xrpc.annotations.XrpcConsumer;
+import com.xuxu.rpc.xrpc.annotations.XrpcProvider;
 import com.xuxu.rpc.xrpc.constants.XrpcConstant;
 
 public class MethodInfo {
@@ -35,12 +35,12 @@ public class MethodInfo {
 	 * @param params 代理的方法参数对象
 	 * @param intf   代理方法所属的接口
 	 */
-	public MethodInfo(Method method, Class<?> intf, XrpcClient xrpcClient) {
+	public MethodInfo(Method method, Class<?> intf, XrpcConsumer xrpcConsumer) {
 		init(method, intf);
-		if (xrpcClient == null) {
+		if (xrpcConsumer == null) {
 			this.groupName = XrpcConstant.DEFAULT_GROUP;
 		} else {
-			this.groupName = xrpcClient.groupName();
+			this.groupName = xrpcConsumer.groupName();
 		}
 		// 构建方法信息
 		buildkey();
@@ -53,7 +53,7 @@ public class MethodInfo {
 	 * @param intf
 	 * @param xrpcServer
 	 */
-	public MethodInfo(Method method, Class<?> intf, Object intfImpl,XrpcServer xrpcServer) {
+	public MethodInfo(Method method, Class<?> intf, Object intfImpl,XrpcProvider xrpcServer) {
 		init(method, intf);
 		if (xrpcServer == null) {
 			this.groupName = XrpcConstant.DEFAULT_GROUP;

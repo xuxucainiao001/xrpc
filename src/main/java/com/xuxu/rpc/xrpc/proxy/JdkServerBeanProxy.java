@@ -7,7 +7,7 @@ import java.lang.reflect.Modifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.xuxu.rpc.xrpc.annotations.XrpcServer;
+import com.xuxu.rpc.xrpc.annotations.XrpcProvider;
 import com.xuxu.rpc.xrpc.context.XrpcResponseContext;
 import com.xuxu.rpc.xrpc.exceptions.XrpcRuntimeException;
 import com.xuxu.rpc.xrpc.exceptions.eumn.ExceptionEnum;
@@ -25,7 +25,7 @@ public class JdkServerBeanProxy implements ServerBeanProxy {
 	 * 创建服务端代理
 	 */
 	@Override
-	public ServerProxy createXrpcServerProxy(Object intfImpl, XrpcServer xprcServer) {
+	public ServerProxy createXrpcServerProxy(Object intfImpl, XrpcProvider xrpcProvider) {
 		Class<?> intfImplClass = intfImpl.getClass();
 		if (intfImplClass.isInterface() || Modifier.isAbstract(intfImplClass.getModifiers())) {
 			throw new XrpcRuntimeException(ExceptionEnum.E0011);
@@ -51,7 +51,7 @@ public class JdkServerBeanProxy implements ServerBeanProxy {
 				continue;
 			}
 			if(method!=null) {
-				MethodInfo methodInfo = new MethodInfo(method, intfs[0], intfImpl, xprcServer);				
+				MethodInfo methodInfo = new MethodInfo(method, intfs[0], intfImpl, xrpcProvider);				
 				//注册到注册中心上
 				XrpcResponseContext.getRigister().rigisterInfo(methodInfo.getMethodKey(), XrpcUtils.localHostInfo());
 				//注册到缓存里

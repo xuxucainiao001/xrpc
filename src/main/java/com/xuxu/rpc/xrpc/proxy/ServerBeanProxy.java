@@ -1,9 +1,9 @@
 package com.xuxu.rpc.xrpc.proxy;
 
-import com.xuxu.rpc.xrpc.annotations.XrpcServer;
+import com.xuxu.rpc.xrpc.annotations.XrpcProvider;
 
 public interface ServerBeanProxy {
 	
-	public ServerProxy createXrpcServerProxy(Object intfImpl,XrpcServer xprcServer);
+	public ServerProxy createXrpcServerProxy(Object intfImpl,XrpcProvider xrpcProvider);
     
 }

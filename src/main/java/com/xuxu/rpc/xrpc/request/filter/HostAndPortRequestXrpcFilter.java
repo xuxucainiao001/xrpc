@@ -43,7 +43,7 @@ public class HostAndPortRequestXrpcFilter implements AbstractRequestXrpcFilter{
 			throw new XrpcRuntimeException(ExceptionEnum.E0017);
 		}
 		HostInfo hostInfo=routeStrategy.route(hostList);
-		logger.info("路由结果：{}",hostInfo);
+		logger.debug("路由结果：{}",hostInfo);
 		request.setHostInfo(hostInfo);
 		chain.doChain(request, response);
 	}

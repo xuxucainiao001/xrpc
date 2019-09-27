@@ -9,7 +9,7 @@ import com.xuxu.rpc.xrpc.constants.XrpcConstant;
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface XrpcClient {
+public @interface XrpcProvider{
 	
 	String groupName() default XrpcConstant.DEFAULT_GROUP;
 

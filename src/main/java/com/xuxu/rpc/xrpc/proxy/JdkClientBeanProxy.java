@@ -8,7 +8,7 @@ import java.lang.reflect.Proxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.xuxu.rpc.xrpc.annotations.XrpcClient;
+import com.xuxu.rpc.xrpc.annotations.XrpcConsumer;
 import com.xuxu.rpc.xrpc.context.XrpcRequestContext;
 import com.xuxu.rpc.xrpc.exceptions.XrpcRuntimeException;
 import com.xuxu.rpc.xrpc.exceptions.eumn.ExceptionEnum;
@@ -24,13 +24,13 @@ public class JdkClientBeanProxy implements ClientBeanProxy {
 	
 	
 	@Override
-	public <T> T createXrpcClientProxy(Class<T> intf, XrpcClient xrpcClient) {
+	public <T> T createXrpcClientProxy(Class<T> intf, XrpcConsumer xrpcConsumer) {
 		if (!intf.isInterface()) {
 			throw new XrpcRuntimeException(ExceptionEnum.E0003);
 		}
 		ClassLoader cl = Thread.currentThread().getContextClassLoader();
 		return intf.cast(
-				Proxy.newProxyInstance(cl, new Class<?>[] { intf }, new XrpcInvocationHandler(intf, xrpcClient)));
+				Proxy.newProxyInstance(cl, new Class<?>[] { intf }, new XrpcInvocationHandler(intf, xrpcConsumer)));
 	}
 
 }
@@ -47,11 +47,11 @@ class XrpcInvocationHandler implements InvocationHandler {
 
 	private Class<?> intf;
 
-	private XrpcClient xrpcClient;
+	private XrpcConsumer xrpcConsumer;
 
-	public XrpcInvocationHandler(Class<?> intf, XrpcClient xrpcClient) {
+	public XrpcInvocationHandler(Class<?> intf, XrpcConsumer xrpcConsumer) {
 		this.intf = intf;
-		this.xrpcClient = xrpcClient;
+		this.xrpcConsumer = xrpcConsumer;
 	}
 
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -59,7 +59,7 @@ class XrpcInvocationHandler implements InvocationHandler {
 		MethodInfo methodInfo = XrpcRequestContext.getMethodInfoCache(intf);
 		if (methodInfo == null) {
 			// 创建调用方法
-			methodInfo = new MethodInfo(method, intf, xrpcClient);
+			methodInfo = new MethodInfo(method, intf, xrpcConsumer);
 			XrpcRequestContext.rigisterMethodInfoCache(intf, methodInfo);
 		}
 		// 参数是否序列化
@@ -76,7 +76,7 @@ class XrpcInvocationHandler implements InvocationHandler {
 		// 构建请求调用链
 		XrpcFilterChain chain = new RequestXrpcFilterChain();
 		XrpcResponse response=new XrpcResponseImpl();
-		XrpcRequest request=new XrpcRequestImpl(xrpcClient, args, methodInfo);
+		XrpcRequest request=new XrpcRequestImpl(xrpcConsumer, args, methodInfo);
 		chain.doChain(request,response);
 		logger.debug("响应结果信息：{}", response);
 		if(!response.hasException()) {
