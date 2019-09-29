@@ -2,6 +2,9 @@ package com.xuxu.rpc.xrpc.rigister.zk;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.WatchedEvent;
@@ -23,6 +26,8 @@ public class ZookeeperExecutor implements Runnable {
 	private String hostPort;
 
 	private ZooKeeper zk;
+	
+	private ScheduledExecutorService excutor=Executors.newSingleThreadScheduledExecutor();
 
 	private volatile boolean stop = true;
 
@@ -31,6 +36,13 @@ public class ZookeeperExecutor implements Runnable {
 	public ZookeeperExecutor(String hostPort) {
 		this.rigisterInfo = new RigisterInfo();
 		this.hostPort = hostPort;
+	}
+	
+	/**
+	 * 定时器任务同步节点数据  每120秒
+	 */
+	private void autoSyncNode() {
+		excutor.scheduleWithFixedDelay(this::syncNodeDate, 0, 120, TimeUnit.SECONDS);
 	}
 
 	private synchronized void start() {
@@ -41,7 +53,7 @@ public class ZookeeperExecutor implements Runnable {
 			// 启动时，同步创建主节点
 			createMainNode();
 			// 同步节点数据
-			syncNodeDate();
+			autoSyncNode();
 			logger.info("启动zookeeper成功！");
 			stop = false;
 			// 启动完成打开锁
