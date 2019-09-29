@@ -27,7 +27,7 @@ public class ZookeeperExecutor implements Runnable {
 
 	private ZooKeeper zk;
 	
-	private ScheduledExecutorService excutor=Executors.newSingleThreadScheduledExecutor();
+	private ScheduledExecutorService excutor;
 
 	private volatile boolean stop = true;
 
@@ -36,6 +36,8 @@ public class ZookeeperExecutor implements Runnable {
 	public ZookeeperExecutor(String hostPort) {
 		this.rigisterInfo = new RigisterInfo();
 		this.hostPort = hostPort;
+		//初始化定时器任务
+		excutor=Executors.newSingleThreadScheduledExecutor();
 	}
 	
 	/**
