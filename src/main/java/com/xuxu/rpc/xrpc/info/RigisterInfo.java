@@ -29,7 +29,7 @@ public class RigisterInfo {
 		HostInfo hostInfo=new HostInfo(hostPort);
 		hostAndPortSet.add(hostInfo);		
 		rigisterInfoMap.put(methodInfo,hostAndPortSet);
-		logger.info("注册接口方法：{}，注册地址：{}",methodInfo,hostPort);
+		logger.debug("注册接口方法：{}，注册地址：{}",methodInfo,hostPort);
 	}
 	
 	public List<HostInfo> getInfo(String methodInfo) {
