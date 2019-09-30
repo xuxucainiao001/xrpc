@@ -44,9 +44,12 @@ public class NettyServer {
 		ServerBootstrap serverBoostrap = new ServerBootstrap();
 		serverBoostrap.group(boss, work);
 		try {
-			channel = serverBoostrap.childOption(ChannelOption.SO_KEEPALIVE, true)
-					.childOption(ChannelOption.TCP_NODELAY, true).option(ChannelOption.SO_BACKLOG, 1024)
-					.channel(NioServerSocketChannel.class).childHandler(new ChannelInitializer<Channel>() {
+			channel = serverBoostrap
+					.childOption(ChannelOption.SO_KEEPALIVE, true)
+					.childOption(ChannelOption.TCP_NODELAY, true)
+					.option(ChannelOption.SO_BACKLOG, 1024)
+					.channel(NioServerSocketChannel.class)
+					.childHandler(new ChannelInitializer<Channel>() {
 
 						@Override
 						protected void initChannel(Channel ch) throws Exception {
@@ -54,12 +57,13 @@ public class NettyServer {
 							        .addLast(new XrpcEncodeHandler<ResponseEntity>())
 									.addLast(new XrpcDecodeHandler())
 									.addLast(new NettyServerInvokeHandler())
-									;
-							        
+									;							        
 						}
 
 					}).bind(port).sync().channel();
+			
 			logger.info("Netty Server 启动成功...");
+			
 		} catch (Exception e) {
 			logger.error("Netty Server 启动失败：{}", e);
 			boss.shutdownGracefully();

@@ -56,12 +56,14 @@ public class NettyClient {
 							ch.pipeline()
 							  .addLast(new XrpcEncodeHandler<RequestEntity>())
 							  .addLast(new XrpcDecodeHandler())
-							  .addLast(new NettyClientInvokeHandler(responseMap,ch));
+							  .addLast(new NettyClientInvokeHandler(responseMap,ch))
+							  ;
 						}
 						
 					}).connect(hp.getHost().trim(), hp.getPort()).sync().channel();
 			//注册连接
 		}catch(Exception e) {
+			
 			logger.error("创建NettyClient服务发生异常：{}",e);
 			group.shutdownGracefully();
 			throw new XrpcRuntimeException(ExceptionEnum.E0020);
