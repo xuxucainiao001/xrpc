@@ -38,7 +38,7 @@ public class NettyClient {
 	
 	private NettyClient() {}
 	
-	private static void createNew(HostInfo hp){
+	private static Channel createNew(HostInfo hp){
 		Channel channel=null;
 		EventLoopGroup group = new NioEventLoopGroup(2);
 		try {
@@ -71,19 +71,27 @@ public class NettyClient {
 		if(channel!=null&&channel.isOpen()) {			
 			invokeMap.put(hp,channel);
 		}
+		return channel;
+		
 	}
 	
 	public static ResponseEntity invoke(XrpcRequest xrpcRequest) throws InterruptedException {
 		HostInfo hostInfo=xrpcRequest.getHostInfo();
 		Channel channel=invokeMap.get(hostInfo);
 		if(channel==null||!channel.isOpen()) {
-			createNew(hostInfo);
+			channel=createNew(hostInfo);
 		}
-		channel=invokeMap.get(hostInfo);
+		if(channel==null) {
+			logger.error("创建NettyClient服务发生异常,channel==null");
+			throw new XrpcRuntimeException(ExceptionEnum.E0020);
+		}
 		int requestId=requestIdGenerater.incrementAndGet();		
 		RequestEntity requestEntity=xrpcRequest.newRequestEntity();
 		requestEntity.setRequestId(requestId);
-		channel.writeAndFlush(requestEntity);
+		//同一个channel必须串行调用防止冲突
+		synchronized (channel) {
+			channel.writeAndFlush(requestEntity);
+		}
 		//获取返回结果		
 		int i=0;
 		while(responseMap.get(requestId)==null) {
