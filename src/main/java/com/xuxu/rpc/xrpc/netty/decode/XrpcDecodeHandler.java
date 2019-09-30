@@ -15,7 +15,7 @@ public class XrpcDecodeHandler extends ByteToMessageDecoder {
 	protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
 		 //在读取前标记readerIndex
         in.markReaderIndex();
-       //读取头部
+       //读取头部前四个字节（代表content长度）
         int length = in.readInt();
         if (in.readableBytes() < length) {
        //消息不完整，无法处理，将readerIndex复位
@@ -27,7 +27,7 @@ public class XrpcDecodeHandler extends ByteToMessageDecoder {
         ByteBuf bf=in.readBytes(length);
         bf.readBytes(contestBytes);
         //对象反序列化
-        out.add(XrpcSerializerUtils.deserialize(contestBytes)) ;    		
+        out.add(XrpcSerializerUtils.deserialize(contestBytes));    		
 	}
 	
 }
