@@ -11,7 +11,7 @@ import com.xuxu.rpc.xrpc.exceptions.XrpcRuntimeException;
 import com.xuxu.rpc.xrpc.exceptions.eumn.ExceptionEnum;
 import com.xuxu.rpc.xrpc.info.HostInfo;
 import com.xuxu.rpc.xrpc.netty.decode.XrpcDecodeHandler;
-import com.xuxu.rpc.xrpc.netty.decode.XrpcEncodeHandler;
+import com.xuxu.rpc.xrpc.netty.encode.XrpcEncodeHandler;
 import com.xuxu.rpc.xrpc.request.RequestEntity;
 import com.xuxu.rpc.xrpc.request.XrpcRequest;
 import com.xuxu.rpc.xrpc.response.ResponseEntity;

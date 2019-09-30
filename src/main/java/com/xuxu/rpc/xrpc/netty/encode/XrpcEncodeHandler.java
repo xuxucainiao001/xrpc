@@ -1,11 +1,11 @@
-package com.xuxu.rpc.xrpc.netty.decode;
-
-import org.apache.commons.lang.ArrayUtils;
+package com.xuxu.rpc.xrpc.netty.encode;
 
 import com.xuxu.rpc.xrpc.utils.ByteUtils;
 import com.xuxu.rpc.xrpc.utils.XrpcSerializerUtils;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.CompositeByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 
@@ -17,9 +17,16 @@ public class XrpcEncodeHandler<T> extends MessageToByteEncoder<Object>{
 		T t = (T) msg;
 		byte[] content=XrpcSerializerUtils.serialize(t);
 		int length=content.length;
+		byte[] head=ByteUtils.intToByteArray(length);
+		ByteBufAllocator byteBufAllocator=ctx.alloc();
 		//对象字节数组长度+对象字节数组
-		byte[] requestBytes=ArrayUtils.addAll(ByteUtils.intToByteArray(length),content);
-        out.writeBytes(requestBytes);		
+		CompositeByteBuf compositeByteBuf=byteBufAllocator.compositeBuffer(2);
+		compositeByteBuf.addComponents(
+				true, 
+				byteBufAllocator.buffer().writeBytes(head),
+				byteBufAllocator.buffer().writeBytes(content)
+				);
+        out.writeBytes(compositeByteBuf);		
 	}
 
 }
