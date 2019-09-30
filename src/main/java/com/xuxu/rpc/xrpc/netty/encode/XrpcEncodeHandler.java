@@ -26,7 +26,7 @@ public class XrpcEncodeHandler<T> extends MessageToByteEncoder<Object>{
 				byteBufAllocator.buffer().writeBytes(head),
 				byteBufAllocator.buffer().writeBytes(content)
 				);
-        out.writeBytes(compositeByteBuf);		
+        out.writeBytes(compositeByteBuf);	
 	}
 
 }

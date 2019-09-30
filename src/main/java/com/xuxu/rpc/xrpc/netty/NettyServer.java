@@ -18,10 +18,10 @@ import com.xuxu.rpc.xrpc.response.ResponseEntity;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
@@ -78,13 +78,12 @@ public class NettyServer {
 
 }
 
-class NettyServerInvokeHandler extends ChannelInboundHandlerAdapter {
+class NettyServerInvokeHandler extends SimpleChannelInboundHandler<RequestEntity> {
 
 	private Logger logger = LoggerFactory.getLogger(NettyServerInvokeHandler.class);
 
 	@Override
-	public void channelRead(ChannelHandlerContext ctx, Object msg) {
-		RequestEntity requestEntity = (RequestEntity) msg;
+	protected void channelRead0(ChannelHandlerContext ctx, RequestEntity requestEntity) throws Exception {
 		logger.info("NettyServer收到消息：{}", requestEntity);
 		MethodInfo methodInfo = XrpcResponseContext.getMethodCache(requestEntity.getMethodKey());
 		Method mothod = methodInfo.getMethod();
@@ -104,6 +103,7 @@ class NettyServerInvokeHandler extends ChannelInboundHandlerAdapter {
 		responseEntity.setThrowable(invokeException);
 		responseEntity.setRequestId(requestEntity.getRequestId());
 		ctx.writeAndFlush(responseEntity);
+		
 	}
 
 }

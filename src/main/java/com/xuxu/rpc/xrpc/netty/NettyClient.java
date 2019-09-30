@@ -19,10 +19,10 @@ import com.xuxu.rpc.xrpc.response.ResponseEntity;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
@@ -101,7 +101,7 @@ public class NettyClient {
 }
 
 
-class NettyClientInvokeHandler  extends ChannelInboundHandlerAdapter {
+class NettyClientInvokeHandler  extends SimpleChannelInboundHandler<ResponseEntity> {
 	
 	private static Logger logger = LoggerFactory.getLogger(NettyClientInvokeHandler.class);
 	
@@ -120,20 +120,20 @@ class NettyClientInvokeHandler  extends ChannelInboundHandlerAdapter {
 	}
 
 	@Override
-	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-			ResponseEntity responseEntity=(ResponseEntity)msg;
-			logger.info("NettyClient收到消息：{}" , responseEntity);
-			responseMap.put(responseEntity.getRequestId(), responseEntity);
-			synchronized (channel) {
-				channel.notifyAll();
-			}			
-	}
-
-	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 		logger.error("NettyClient发生异常：{}", cause);
 		//关闭连接
 		ctx.channel().close();
+	}
+
+	@Override
+	protected void channelRead0(ChannelHandlerContext ctx, ResponseEntity responseEntity) throws Exception {
+		logger.info("NettyClient收到消息：{}" , responseEntity);
+		responseMap.put(responseEntity.getRequestId(), responseEntity);
+		synchronized (channel) {
+			channel.notifyAll();
+		}		
+		
 	}
 	
 
