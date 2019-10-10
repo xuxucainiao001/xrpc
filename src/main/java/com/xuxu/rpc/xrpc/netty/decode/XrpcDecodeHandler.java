@@ -28,8 +28,8 @@ public class XrpcDecodeHandler extends ByteToMessageDecoder {
         ByteBuf bf=in.readBytes(length);
         bf.readBytes(contestBytes);
         //对象反序列化
-        out.add(XrpcSerializerUtils.deserialize(contestBytes));   
-        ReferenceCountUtil.release(bf);
+        out.add(XrpcSerializerUtils.deserialize(contestBytes)); 
+        ReferenceCountUtil.release(in);
 	}
 	
 }

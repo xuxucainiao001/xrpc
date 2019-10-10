@@ -8,7 +8,7 @@ import com.xuxu.rpc.xrpc.configuration.XrpcProperties;
 import com.xuxu.rpc.xrpc.proxy.BeanProxyFactory;
 import com.xuxu.rpc.xrpc.proxy.ClientBeanProxy;
 
-public class XrpConsumerTest {
+public class XrpConsumersTest {
 	
 	
 	public static void main(String[] args) throws Exception {
