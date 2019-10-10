@@ -1,6 +1,8 @@
 package com.xuxu.rpc.xrpc;
 
 
+import java.util.concurrent.CountDownLatch;
+
 import com.xuxu.rpc.xrpc.configuration.XrpcConfiguration;
 import com.xuxu.rpc.xrpc.configuration.XrpcProperties;
 import com.xuxu.rpc.xrpc.proxy.BeanProxyFactory;
@@ -20,26 +22,22 @@ public class XrpConsumerTest {
 		BeanProxyFactory factory=con.getBeanProxyFactory();
 		ClientBeanProxy clientBeanProxy=factory.getClientBeanProxy();
 		Method m=clientBeanProxy.createXrpcClientProxy(Method.class,null);
-		try {
-			System.out.println(m.call(1,"2"));
-		}catch(Exception e) {
-			
-		}
-		try {
-			System.out.println(m.call(1,"3"));
-		}catch(Exception e) {
-			
-		}
-		try {
-			System.out.println(m.call(1,"4"));
-		}catch(Exception e) {
-			
-		}
-		try {
-			System.out.println(m.call(1,"5"));
-		}catch(Exception e) {
-			
-		}	
+	    CountDownLatch cdl=new CountDownLatch(1);
+	    int i=600;
+	    while(i>0) {
+	    	int j=i;
+	    	new Thread(()-> {
+	    		try {
+					cdl.await();
+				} catch (InterruptedException e) {
+					
+				}
+	    		System.out.println(m.call(1,""+j));
+	    	}).start();
+	    	i--;
+	    }
+	    cdl.countDown();
+		
 	}
 
 }

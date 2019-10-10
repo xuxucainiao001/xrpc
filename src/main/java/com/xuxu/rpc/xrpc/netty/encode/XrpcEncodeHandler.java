@@ -8,6 +8,7 @@ import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.CompositeByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
+import io.netty.util.ReferenceCountUtil;
 
 public class XrpcEncodeHandler<T> extends MessageToByteEncoder<Object>{
 
@@ -26,7 +27,8 @@ public class XrpcEncodeHandler<T> extends MessageToByteEncoder<Object>{
 				byteBufAllocator.buffer().writeBytes(head),
 				byteBufAllocator.buffer().writeBytes(content)
 				);
-        out.writeBytes(compositeByteBuf);	
+        out.writeBytes(compositeByteBuf);
+        ReferenceCountUtil.release(compositeByteBuf);
 	}
 
 }

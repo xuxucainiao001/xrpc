@@ -35,7 +35,6 @@ public class RigisterInfo {
 	public List<HostInfo> getInfo(String methodInfo) {
 		Set<HostInfo> hostAndPortSet=rigisterInfoMap.get(methodInfo);
 		if(CollectionUtils.isEmpty(hostAndPortSet)) {
-			logger.info("没有获得方法的地址信息：{}",methodInfo);	
 			return Collections.emptyList();
 		}
 		return new ArrayList<>(hostAndPortSet);

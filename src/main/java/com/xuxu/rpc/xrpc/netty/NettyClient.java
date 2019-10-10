@@ -32,75 +32,43 @@ public class NettyClient {
 	
 	private static ConcurrentMap<Integer, ResponseEntity> responseMap =new ConcurrentHashMap<>();
 	
-	private static ConcurrentMap<HostInfo,Channel> invokeMap=new ConcurrentHashMap<>();
+	private static ConcurrentMap<HostInfo,NettyClientInvokeHandler> invokeMap=new ConcurrentHashMap<>();
 	
 	private static AtomicInteger requestIdGenerater=new AtomicInteger(0) ;
 	
+	private static EventLoopGroup group = new NioEventLoopGroup(2);	
+	
 	private NettyClient() {}
 	
-	private static Channel createNew(HostInfo hp){
-		Channel channel=null;
-		EventLoopGroup group = new NioEventLoopGroup(2);
-		try {
-			Bootstrap bootstrap = new Bootstrap();
-			channel=bootstrap.group(group)
-					.option(ChannelOption.SO_KEEPALIVE, true)
-					.option(ChannelOption.TCP_NODELAY, true)
-					//十秒没有找到服务器则抛出异常
-					.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
-					.channel(NioSocketChannel.class)
-					.handler(new ChannelInitializer<Channel>() {
+	private synchronized static NettyClientInvokeHandler createNew(HostInfo hp) {
 
-						@Override
-						protected void initChannel(Channel ch) throws Exception {						
-							ch.pipeline()
-							  .addLast(new XrpcEncodeHandler<RequestEntity>())
-							  .addLast(new XrpcDecodeHandler())
-							  .addLast(new NettyClientInvokeHandler(responseMap,ch))
-							  ;
-						}
-						
-					}).connect(hp.getHost().trim(), hp.getPort()).sync().channel();
-			//注册连接
-		}catch(Exception e) {
-			
-			logger.error("创建NettyClient服务发生异常：{}",e);
-			group.shutdownGracefully();
-			throw new XrpcRuntimeException(ExceptionEnum.E0020);
-		}
-		if(channel!=null&&channel.isOpen()) {			
-			invokeMap.put(hp,channel);
-		}
-		return channel;
-		
+		Bootstrap bootstrap = new Bootstrap();
+		bootstrap.group(group);
+		NettyClientInvokeHandler nettyClientInvokeHandler = new NettyClientInvokeHandler(responseMap, bootstrap, hp);
+		invokeMap.put(hp, nettyClientInvokeHandler);
+		return nettyClientInvokeHandler;
+
 	}
-	
+
 	public static ResponseEntity invoke(XrpcRequest xrpcRequest) throws InterruptedException {
 		HostInfo hostInfo=xrpcRequest.getHostInfo();
-		Channel channel=invokeMap.get(hostInfo);
-		if(channel==null||!channel.isOpen()) {
-			channel=createNew(hostInfo);
-		}
-		if(channel==null) {
-			logger.error("创建NettyClient服务发生异常,channel==null");
-			throw new XrpcRuntimeException(ExceptionEnum.E0020);
+		NettyClientInvokeHandler handler=invokeMap.get(hostInfo);
+		if(handler==null) {
+			handler=createNew(hostInfo);
 		}
 		int requestId=requestIdGenerater.incrementAndGet();		
 		RequestEntity requestEntity=xrpcRequest.newRequestEntity();
 		requestEntity.setRequestId(requestId);
-		//同一个channel必须串行调用防止冲突
-		synchronized (channel) {
-			channel.writeAndFlush(requestEntity);
-		}
+        handler.sendRequest(requestEntity);
 		//获取返回结果		
-		int i=0;
-		while(responseMap.get(requestId)==null) {
-			i++;
-			synchronized(channel) {
+		long invokeStart=System.currentTimeMillis();
+		while(responseMap.get(requestId)==null) {		
+			synchronized(hostInfo) {
 				//5秒没有获取结果，重新判断
-				channel.wait(5000);
+				hostInfo.wait(5000);
 			}
-			if(i>2) {
+			//10秒超时
+			if(System.currentTimeMillis()-invokeStart>10000) {
 				logger.error("NettyClient调用超时！requestId:{}",requestId);
 				throw new XrpcRuntimeException(ExceptionEnum.E0021);
 			}
@@ -117,33 +85,83 @@ class NettyClientInvokeHandler  extends SimpleChannelInboundHandler<ResponseEnti
 	
 	private ConcurrentMap<Integer, ResponseEntity> responseMap;
     
+	private Bootstrap bootstrap;
+	
 	private Channel channel;
 	
-	public NettyClientInvokeHandler(ConcurrentMap<Integer, ResponseEntity> responseMap,Channel channel) {
+	private HostInfo hp;
+	
+	public NettyClientInvokeHandler(ConcurrentMap<Integer, ResponseEntity> responseMap,
+			Bootstrap bootstrap,
+			HostInfo hp) {
 		this.responseMap=responseMap;
-		this.channel=channel;
+		this.bootstrap=bootstrap;
+		this.hp=hp;
+		start(this);
+	}
+	
+	/**
+	   * 创建Netty客户端
+	 */
+	private void start(NettyClientInvokeHandler nettyClientInvokeHandler) {
+		
+		try {
+			bootstrap
+					.option(ChannelOption.SO_KEEPALIVE, true)
+					.option(ChannelOption.TCP_NODELAY, true)
+					//十秒没有找到服务器则抛出异常
+					.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
+					.channel(NioSocketChannel.class)
+					.handler(new ChannelInitializer<Channel>() {
+
+						@Override
+						protected void initChannel(Channel ch) throws Exception {						
+							ch.pipeline()
+							  .addLast(new XrpcEncodeHandler<RequestEntity>())
+							  .addLast(new XrpcDecodeHandler())
+							  .addLast(nettyClientInvokeHandler);
+						}
+						
+					}).connect(hp.getHost().trim(), hp.getPort()).sync();
+		}catch(Exception e) {			
+			logger.error("创建NettyClient服务发生异常：{}",e);
+			throw new XrpcRuntimeException(ExceptionEnum.E0020);
+		}	
 	}
 	
 	@Override
-	public void channelActive(ChannelHandlerContext ctx) throws Exception {	
-		 logger.info("NettyClientChannel Linked Success...");
+	public synchronized void channelActive(ChannelHandlerContext ctx) throws Exception {	
+		 logger.info("NettyClient Linked Success...");
+		 this.channel=ctx.channel();
+		 this.notifyAll();
 	}
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 		logger.error("NettyClient发生异常：{}", cause);
 		//关闭连接
-		ctx.channel().close();
+		this.channel.close();
 	}
 
 	@Override
 	protected void channelRead0(ChannelHandlerContext ctx, ResponseEntity responseEntity) throws Exception {
 		logger.info("NettyClient收到消息：{}" , responseEntity);
 		responseMap.put(responseEntity.getRequestId(), responseEntity);
-		synchronized (channel) {
-			channel.notifyAll();
+		synchronized (hp) {
+			hp.notifyAll();
+		}				
+	}
+	
+	public void sendRequest(RequestEntity requestEntity) throws InterruptedException {
+		synchronized (this) {
+			while(this.channel==null) {
+				this.wait();
+			}
+			if(!this.channel.isOpen()) {
+				start(this);
+			}
 		}		
-		
+		this.channel.writeAndFlush(requestEntity);
 	}
 	
 

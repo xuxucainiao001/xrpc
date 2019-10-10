@@ -28,7 +28,10 @@ public class RequestXrpcFilterChain implements XrpcFilterChain {
 	private Iterator<AbstractRequestXrpcFilter> itrs = null;
 
 	public RequestXrpcFilterChain() {
-		init();
+		synchronized (RequestXrpcFilterChain.class) {
+			init();
+		}
+		
 	}
 
 	/**
@@ -69,7 +72,7 @@ public class RequestXrpcFilterChain implements XrpcFilterChain {
 	}
 
 	@Override
-	public void doChain(XrpcRequest request,XrpcResponse response) {
+	public void doChain(XrpcRequest request,XrpcResponse response) throws Exception {
 		if (itrs.hasNext()) {
 			itrs.next().doFilter(this, request,response);
 		}

@@ -6,6 +6,6 @@ import com.xuxu.rpc.xrpc.response.XrpcResponse;
 
 public interface XrpcFilter {
 	
-	void doFilter(XrpcFilterChain chain,XrpcRequest request,XrpcResponse response);
+	void doFilter(XrpcFilterChain chain,XrpcRequest request,XrpcResponse response) throws Exception;
 
 }

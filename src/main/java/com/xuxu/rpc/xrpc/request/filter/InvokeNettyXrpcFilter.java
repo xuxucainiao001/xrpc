@@ -19,18 +19,18 @@ import com.xuxu.rpc.xrpc.rigister.Rigister;
  * @author xuxu
  *
  */
-public class InvokeRequestXrpcFilter implements AbstractRequestXrpcFilter{
+public class InvokeNettyXrpcFilter implements AbstractRequestXrpcFilter{
 	
-	Logger logger =LoggerFactory.getLogger(InvokeRequestXrpcFilter.class);
+	Logger logger =LoggerFactory.getLogger(InvokeNettyXrpcFilter.class);
     
 	private Rigister rigsiter;
 	
-	public InvokeRequestXrpcFilter() {
+	public InvokeNettyXrpcFilter() {
 		rigsiter=XrpcRequestContext.getRigister();
 	}
 
 	@Override
-	public void doFilter(XrpcFilterChain chain, XrpcRequest request, XrpcResponse response) {
+	public void doFilter(XrpcFilterChain chain, XrpcRequest request, XrpcResponse response) throws Exception {
 		ResponseEntity responseEntity=null;
 		Exception exception=null;
 		try {
@@ -46,7 +46,7 @@ public class InvokeRequestXrpcFilter implements AbstractRequestXrpcFilter{
 				rigsiter.getRigisterInfo().removeInfo(request.getMethodKey(), request.getHostInfo());
 			}	
 			//快速失败
-			throw new XrpcRuntimeException(ExceptionEnum.E0024);
+			throw exception;
 		}		
 		response.setResult(responseEntity.getResult()); 
 		response.setThrowable(responseEntity.getThrowable());

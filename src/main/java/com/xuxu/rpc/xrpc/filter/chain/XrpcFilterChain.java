@@ -5,6 +5,6 @@ import com.xuxu.rpc.xrpc.response.XrpcResponse;
 
 public interface XrpcFilterChain {
 		
-	void doChain(XrpcRequest request,XrpcResponse response);
+	void doChain(XrpcRequest request,XrpcResponse response)  throws Exception;
 
 }

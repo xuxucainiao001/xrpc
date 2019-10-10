@@ -31,39 +31,37 @@ public class NettyServer {
 
 	private int port;
 
-	private Channel channel;
+	private ServerBootstrap serverBoostrap;
 
 	public NettyServer(int port) {
 		this.port = port;
 	}
 
-	public void open() {
-
-		EventLoopGroup boss = new NioEventLoopGroup(1);
-		EventLoopGroup work = new NioEventLoopGroup();
-		ServerBootstrap serverBoostrap = new ServerBootstrap();
-		serverBoostrap.group(boss, work);
+	public void open() {		
+			EventLoopGroup boss = new NioEventLoopGroup(1);
+			EventLoopGroup work = new NioEventLoopGroup();
 		try {
-			channel = serverBoostrap
-					.childOption(ChannelOption.SO_KEEPALIVE, true)
-					.childOption(ChannelOption.TCP_NODELAY, true)
+			serverBoostrap = new ServerBootstrap();
+			serverBoostrap.group(boss, work);
+			serverBoostrap.childOption(ChannelOption.SO_KEEPALIVE, true)
+			.childOption(ChannelOption.TCP_NODELAY, true)
 					.option(ChannelOption.SO_BACKLOG, 1024)
+					.option(ChannelOption.SO_REUSEADDR, true)
 					.channel(NioServerSocketChannel.class)
 					.childHandler(new ChannelInitializer<Channel>() {
 
 						@Override
 						protected void initChannel(Channel ch) throws Exception {
-							ch.pipeline()	
+							ch.pipeline()
 							        .addLast(new XrpcEncodeHandler<ResponseEntity>())
 									.addLast(new XrpcDecodeHandler())
-									.addLast(new NettyServerInvokeHandler())
-									;							        
+									.addLast(new NettyServerInvokeHandler());
 						}
 
-					}).bind(port).sync().channel();
-			
+					}).bind(port).sync();
+
 			logger.info("Netty Server 启动成功...");
-			
+
 		} catch (Exception e) {
 			logger.error("Netty Server 启动失败：{}", e);
 			boss.shutdownGracefully();
@@ -75,9 +73,8 @@ public class NettyServer {
 	 * 关闭
 	 */
 	public void closeNettyServer() {
-		if (channel != null && channel.isOpen()) {
-			channel.close();
-		}
+		serverBoostrap.config().childGroup().shutdownGracefully();
+		serverBoostrap.config().group().shutdownGracefully();
 	}
 
 }
@@ -107,7 +104,12 @@ class NettyServerInvokeHandler extends SimpleChannelInboundHandler<RequestEntity
 		responseEntity.setThrowable(invokeException);
 		responseEntity.setRequestId(requestEntity.getRequestId());
 		ctx.writeAndFlush(responseEntity);
-		
+	}
+	
+	@Override
+	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+		logger.error("NettyServer发生异常：{}",cause);
+		super.exceptionCaught(ctx, cause);
 	}
 
 }

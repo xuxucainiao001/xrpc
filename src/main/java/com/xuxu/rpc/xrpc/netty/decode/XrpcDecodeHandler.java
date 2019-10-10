@@ -7,6 +7,7 @@ import com.xuxu.rpc.xrpc.utils.XrpcSerializerUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
+import io.netty.util.ReferenceCountUtil;
 
 public class XrpcDecodeHandler extends ByteToMessageDecoder {
 	
@@ -27,7 +28,8 @@ public class XrpcDecodeHandler extends ByteToMessageDecoder {
         ByteBuf bf=in.readBytes(length);
         bf.readBytes(contestBytes);
         //对象反序列化
-        out.add(XrpcSerializerUtils.deserialize(contestBytes));    		
+        out.add(XrpcSerializerUtils.deserialize(contestBytes));   
+        ReferenceCountUtil.release(bf);
 	}
 	
 }

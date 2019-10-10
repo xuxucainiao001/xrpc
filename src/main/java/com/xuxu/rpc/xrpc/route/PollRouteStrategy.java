@@ -14,7 +14,7 @@ public class PollRouteStrategy implements RouteStrategy {
 	private int next=0;
 
 	@Override
-	public HostInfo route(List<HostInfo> list) {
+	public synchronized HostInfo route(List<HostInfo> list) {
 		if(++next>list.size()-1) {
 			next=0;
 		}

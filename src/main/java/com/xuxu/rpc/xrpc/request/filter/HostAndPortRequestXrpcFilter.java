@@ -35,7 +35,7 @@ public class HostAndPortRequestXrpcFilter implements AbstractRequestXrpcFilter{
 
  
 	@Override
-	public void doFilter(XrpcFilterChain chain, XrpcRequest request, XrpcResponse response) {
+	public void doFilter(XrpcFilterChain chain, XrpcRequest request, XrpcResponse response) throws Exception {
 		//获取注册中心
 		Rigister rigister=XrpcRequestContext.getRigister();
 		List<HostInfo> hostList=null;
