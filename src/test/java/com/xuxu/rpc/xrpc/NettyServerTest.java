@@ -39,6 +39,7 @@ public class NettyServerTest {
 						.addLast(new ChannelOutBoundHandler1())
 						.addLast(new ChannelInBoundHandler1())
 						.addLast(new ChannelInBoundHandler2());
+						System.out.println(ch.pipeline());
 					}
 				}).bind(8776).sync();
 		logger.info("Netty Server 启动成功....");
