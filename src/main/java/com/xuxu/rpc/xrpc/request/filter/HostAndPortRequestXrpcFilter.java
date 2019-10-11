@@ -41,11 +41,13 @@ public class HostAndPortRequestXrpcFilter implements AbstractRequestXrpcFilter{
 		List<HostInfo> hostList=null;
 		//才能够本地注册环境中查询
 		hostList=rigister.getRigisterInfo().getInfo(request.getMethodKey());
-        if(CollectionUtils.isEmpty(hostList)) {
-		  //重新同步zookeeper节点信息
-        	rigister.syncNodes();
-        	hostList=rigister.getRigisterInfo().getInfo(request.getMethodKey());
-		}
+		synchronized (this) {
+			if(CollectionUtils.isEmpty(hostList)) {
+				  //重新同步zookeeper节点信息
+		        	rigister.syncNodes();
+		        	hostList=rigister.getRigisterInfo().getInfo(request.getMethodKey());
+			}
+		}       
 		if(CollectionUtils.isEmpty(hostList)) {
 			logger.info("没有获得方法的地址信息：{}",request.getMethodKey());
 			throw new XrpcRuntimeException(ExceptionEnum.E0017);
