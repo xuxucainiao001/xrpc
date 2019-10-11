@@ -21,7 +21,7 @@ public class XrpConsumersTest {
 		ClientBeanProxy clientBeanProxy = factory.getClientBeanProxy();
 		Method m = clientBeanProxy.createXrpcClientProxy(Method.class, null);
 		multi(m);
-				
+		syc(m);	
 	}
 	
 	private static void syc(Method m) throws InterruptedException {
