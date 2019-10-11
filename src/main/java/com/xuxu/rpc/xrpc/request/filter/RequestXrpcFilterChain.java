@@ -30,8 +30,7 @@ public class RequestXrpcFilterChain implements XrpcFilterChain {
 	public RequestXrpcFilterChain() {
 		synchronized (RequestXrpcFilterChain.class) {
 			init();
-		}
-		
+		}		
 	}
 
 	/**
