@@ -38,13 +38,9 @@ public class InvokeNettyXrpcFilter implements AbstractRequestXrpcFilter{
 		}  catch(Exception e) {
 			exception=e;
 		}
-		if(exception!=null) {
-			logger.error("方法调用发生异常：{}",exception);
-			//连接异常删除已经注册的异常地址节点
-			if(exception instanceof XrpcRuntimeException
-					&&((XrpcRuntimeException) exception).getExceptionEmun().equals(ExceptionEnum.E0020)) {
-				rigsiter.getRigisterInfo().removeInfo(request.getMethodKey(), request.getHostInfo());
-			}	
+		if(exception!=null) {	
+			//删除地址信息
+			rigsiter.getRigisterInfo().removeInfo(request.getMethodKey(), request.getHostInfo());
 			//快速失败
 			throw exception;
 		}		

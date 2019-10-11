@@ -108,8 +108,7 @@ class NettyServerInvokeHandler extends SimpleChannelInboundHandler<RequestEntity
 	
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-		logger.error("NettyServer发生异常：{}",cause);
-		super.exceptionCaught(ctx, cause);
+		logger.debug("NettyServer发生异常：{}",cause);
 	}
 
 }

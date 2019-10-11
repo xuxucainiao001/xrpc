@@ -1,9 +1,11 @@
 package com.xuxu.rpc.xrpc.context;
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.xuxu.rpc.xrpc.configuration.XrpcConfiguration;
 import com.xuxu.rpc.xrpc.info.MethodInfo;
+import com.xuxu.rpc.xrpc.response.XrpcResponseFuture;
 import com.xuxu.rpc.xrpc.rigister.Rigister;
 import com.xuxu.rpc.xrpc.route.RouteStrategyFactory;
 
@@ -14,6 +16,7 @@ import com.xuxu.rpc.xrpc.route.RouteStrategyFactory;
  */
 public class XrpcRequestContext {
 	
+	public static final ConcurrentMap<Integer, XrpcResponseFuture> RESPOSNE_MAP =new ConcurrentHashMap<>();
 		
 	private XrpcRequestContext() {}
 	
