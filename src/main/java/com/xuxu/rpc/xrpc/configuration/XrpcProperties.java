@@ -1,8 +1,13 @@
 package com.xuxu.rpc.xrpc.configuration;
 
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
 import com.xuxu.rpc.xrpc.constants.XrpcConstant;
 
+@ConfigurationProperties(prefix = XrpcProperties.PREX)
 public class XrpcProperties {
+
+	public static final String PREX = "com.xuxu.xrpc";
 
 	private String proxyClassName;
 

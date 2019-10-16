@@ -26,9 +26,8 @@ public class XrpConsumersTest {
 	
 	private static void syc(Method m) throws InterruptedException {
 		
-		int i=20000;
+		int i=1;
 		while(i>0) {
-			Thread.sleep(3000);
 			try {
 				m.call(i--, "1");
 			}catch(Exception e) {
@@ -41,7 +40,7 @@ public class XrpConsumersTest {
 	
 	private  static void multi(Method m) {
 		CountDownLatch cdl = new CountDownLatch(1);
-		int i = 2000;
+		int i = 1;
 		while (i > 0) {
 			int j = i;
 			new Thread(() -> {

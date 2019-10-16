@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 import com.xuxu.rpc.xrpc.constants.XrpcConstant;
 
-@Target(ElementType.TYPE)
+@Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface XrpcConsumer {
 	

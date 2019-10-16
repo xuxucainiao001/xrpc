@@ -92,11 +92,12 @@ class NettyServerInvokeHandler extends SimpleChannelInboundHandler<RequestEntity
 		Throwable invokeException = null;
 		Object result = null;
 		try {
+			mothod.setAccessible(true);
 			result = mothod.invoke(methodImplObject, requestEntity.getParam());
 		} catch (InvocationTargetException e) {
 			invokeException = e.getTargetException();
 		} catch (Exception e) {
-			logger.error("Xrpc服务端方法调用发生异常！");
+			logger.error("Xrpc服务端方法调用发生异常：{}",e);
 			throw new XrpcRuntimeException(ExceptionEnum.E0019);
 		}
 		ResponseEntity responseEntity = new ResponseEntity();

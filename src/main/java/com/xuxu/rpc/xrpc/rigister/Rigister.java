@@ -26,7 +26,7 @@ public abstract class Rigister {
 		if (XrpcConstant.RIGISTER_TYPE_ZOOKEEPER.equals(rigisterType)) {
 			return new ZooKeeperRigisterImpl(rigisterUrl);
 		}
-		logger.info("无效的注册中心类型：{}，启用默认的注册中心zookeeper",rigisterType);
+		logger.warn("无效的注册中心类型：{}，启用默认的注册中心zookeeper",rigisterType);
 		return open(rigisterUrl);
 	}
 

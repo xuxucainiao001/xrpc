@@ -79,7 +79,7 @@ public class ZookeeperExecutor implements Runnable {
 			logger.error("获取zk节点数据失败，节点：{}，异常：{}", XRPC_ROOT_NODE, e);
 			return;
 		}
-		logger.info("zookeeper所有节点：{}", children);
+		logger.debug("zookeeper所有节点：{}", children);
 		for (String child : children) {
 			String paths = XRPC_ROOT_NODE + "/" + child;
 			try {
