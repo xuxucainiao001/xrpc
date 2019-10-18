@@ -1,5 +1,6 @@
 package com.xuxu.rpc.xrpc.context;
 
+import java.lang.reflect.Method;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -27,16 +28,16 @@ public class XrpcRequestContext {
 	private static XrpcConfiguration con;
 	
 	//methodInfo 缓存
-	private static final ConcurrentHashMap<Class<?>, MethodInfo> methodInfoCache=new ConcurrentHashMap<>();
+	private static final ConcurrentHashMap<Method, MethodInfo> methodInfoCache=new ConcurrentHashMap<>();
 	
 	//注入methodInfo缓存
-	public static void rigisterMethodInfoCache(Class<?> intf,MethodInfo methodInfo) {
-		 methodInfoCache.put(intf, methodInfo);
+	public static void rigisterMethodInfoCache(Method method,MethodInfo methodInfo) {
+		 methodInfoCache.put(method, methodInfo);
 	}
 	
 	//获取methodInfo缓存
-	public static MethodInfo getMethodInfoCache(Class<?> intf) {
-		return methodInfoCache.get(intf);
+	public static MethodInfo getMethodInfoCache(Method method) {
+		return methodInfoCache.get(method);
 	}
 	
 	//设置注册中心

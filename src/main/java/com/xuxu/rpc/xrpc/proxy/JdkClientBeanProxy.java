@@ -56,11 +56,11 @@ class XrpcInvocationHandler implements InvocationHandler {
 
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 		// 缓存中先获取
-		MethodInfo methodInfo = XrpcRequestContext.getMethodInfoCache(intf);
+		MethodInfo methodInfo = XrpcRequestContext.getMethodInfoCache(method);
 		if (methodInfo == null) {
 			// 创建调用方法
 			methodInfo = new MethodInfo(method, intf, xrpcConsumer);
-			XrpcRequestContext.rigisterMethodInfoCache(intf, methodInfo);
+			XrpcRequestContext.rigisterMethodInfoCache(method, methodInfo);
 		}
 		// 参数是否序列化
 		if (args != null) {
