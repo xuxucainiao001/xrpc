@@ -56,10 +56,13 @@ public class NettyClient {
 	public static ResponseEntity invoke(XrpcRequest xrpcRequest) throws InterruptedException, ExecutionException {
 		HostInfo hostInfo=xrpcRequest.getHostInfo();
 		ClientStub stub=subMap.get(hostInfo);
-		synchronized (hostInfo) {
-			if(stub==null) {
-				stub=createStub(hostInfo);
-			}
+		//双重判断减少锁竞争
+		if(stub==null) {
+		    synchronized (hostInfo){
+		    	if(stub==null) {
+			        stub=createStub(hostInfo);
+		    	}
+		    }
 		}		
 		int requestId=requestIdGenerater.incrementAndGet();		
 		RequestEntity requestEntity=xrpcRequest.newRequestEntity();
