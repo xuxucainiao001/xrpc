@@ -30,6 +30,7 @@ public class XrpConsumersTest {
 		while(i>0) {
 			try {
 				m.call(i--, "1");
+				m.work(new String[] {"a","b"});
 			}catch(Exception e) {
 				
 			}
