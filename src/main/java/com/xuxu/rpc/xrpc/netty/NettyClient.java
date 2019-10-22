@@ -142,7 +142,7 @@ class NettyClientInvokeHandler  extends SimpleChannelInboundHandler<ResponseEnti
 	protected void channelRead0(ChannelHandlerContext ctx, ResponseEntity responseEntity) throws Exception {
 		logger.info("NettyClient收到消息：{}" , responseEntity);
 		//返回结果放入全局map中
-		XrpcRequestContext.RESPOSNE_MAP.remove(responseEntity.getRequestId()).setResult(responseEntity);			
+		XrpcRequestContext.RESPOSNE_MAP.get(responseEntity.getRequestId()).setResult(responseEntity);			
 	}
 
 	@Override
