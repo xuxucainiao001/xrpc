@@ -59,7 +59,7 @@ public class NettyClient {
 		//双重判断减少锁竞争
 		if(stub==null) {
 		    synchronized (hostInfo){
-		    	if(stub==null) {
+		    	if(subMap.get(hostInfo)==null) {
 			        stub=createStub(hostInfo);
 		    	}
 		    }
